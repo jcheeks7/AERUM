@@ -14,7 +14,7 @@ class MissionLead:
         }
 
     def load_mission(self, filename):
-        path = os.path.join("..", "missions", filename)
+        path = os.path.join("missions", filename)
         with open(path, "r") as f:
             mission = json.load(f)
         return mission
