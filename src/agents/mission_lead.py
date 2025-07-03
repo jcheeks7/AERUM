@@ -50,7 +50,7 @@ class MissionLead:
 
         for msg in messages:
             self.logger.log(self.name, f"Received from {msg['from']}: {msg['content']}")
-            if "complete" in msg["content"]:
+            if msg["content"].startswith("TASK_COMPLETE:"):
                 completed_steps += 1
             self.state["responses_received"] += 1
 
