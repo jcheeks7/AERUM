@@ -7,18 +7,19 @@ import time
 # Initialize logger
 logger = Logger()
 
-# Initialize agents
-mission_lead = MissionLead(logger)
-orbital_engineer = OrbitalEngineer(logger)
-mission_specialist = MissionSpecialist(logger)
-
 # Message bus for communication
 message_bus = []
 
+# Initialize agents with both logger and bus
+mission_lead = MissionLead(logger, message_bus)
+orbital_engineer = OrbitalEngineer(logger)
+mission_specialist = MissionSpecialist(logger)
+
 # Run the mission
-mission_lead.run_mission(message_bus)
+mission_lead.run_mission()
 
 # Distribute messages to other agents
 for message in message_bus:
     orbital_engineer.receive_message(message)
     mission_specialist.receive_message(message)
+
