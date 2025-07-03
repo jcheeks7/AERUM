@@ -28,14 +28,16 @@ class MissionSpecialist:
                     self.bus.send(self.name, "OrbitalEngineer", "Anomaly detected in scan results")
                     self.bus.send(self.name, "MissionLead", "Scan complete. Anomaly forwarded to engineering.")
                     self.logger.log(self.name, f"Sent report: {self.state['anomalies_found']} anomalies found across {self.state['scans_completed']} scans")
-            time.sleep(1)
+
                 elif "run_thermal_scan" in content:
                     self.logger.log(self.name, "Running high-resolution thermal scan...")
                     time.sleep(1)
                     self.state["anomalies_found"] += 1
                     self.bus.send(self.name, "OrbitalEngineer", "Thermal anomaly detected.")
-                    self.logger.log(self.name, f"Sent to OrbitalEngineer: Thermal anomaly detected.")
-                
+                    self.logger.log(self.name, "Sent to OrbitalEngineer: Thermal anomaly detected.")
+
                 elif "prepare_data_dump" in content:
                     self.logger.log(self.name, "Packaging and encrypting mission data for uplink...")
                     self.bus.send(self.name, "MissionLead", "Data uplink ready.")
+
+            time.sleep(1)
