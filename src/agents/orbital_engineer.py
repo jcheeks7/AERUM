@@ -45,7 +45,7 @@ class OrbitalEngineer:
                     self.logger.log(self.name, "Analyzing thermal data for hotspots...")
                 
                 elif "run_emergency_diagnostics" in content:
-                    self.logger.log(self.name, "⚠️ Emergency diagnostics in progress")
+                    self.logger.log(self.name, "Emergency diagnostics in progress")
                     self.state["systems_nominal"] = False
                     self.bus.send(self.name, "MissionLead", "Emergency diagnostics complete. System compromised.")
                 else:
