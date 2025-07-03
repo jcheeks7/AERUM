@@ -21,3 +21,7 @@ threading.Thread(target=spacecraft_technician.run, daemon=True).start()
 
 # MissionLead runs in the main thread
 mission_lead.run()
+
+# Give other agents time to process remaining messages
+import time
+time.sleep(3)
