@@ -12,8 +12,8 @@ message_bus = []
 
 # Initialize agents with both logger and bus
 mission_lead = MissionLead(logger, message_bus)
-orbital_engineer = OrbitalEngineer(logger)
-mission_specialist = MissionSpecialist(logger)
+orbital_engineer = OrbitalEngineer(logger, message_bus)
+mission_specialist = MissionSpecialist(logger, message_bus)
 
 # Run the mission
 mission_lead.run_mission()
