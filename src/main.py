@@ -5,7 +5,7 @@ from utils.logger import Logger
 import time
 
 # Initialize logger
-logger = Logger("mission_log.txt")
+logger = Logger()
 
 # Initialize agents
 mission_lead = MissionLead(logger)
