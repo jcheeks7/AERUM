@@ -32,6 +32,7 @@ class OrbitalEngineer:
                     # Smart response to MissionLead
                     report = f"Diagnostics complete. Count: {self.state['diagnostic_count']}. Systems nominal."
                     self.bus.send(self.name, "MissionLead", report)
+                    self.logger.log(self.name, f"Sent to MissionLead: {report}")
                 else:
                     self.logger.log(self.name, "Running standard diagnostics...")
             time.sleep(1)
