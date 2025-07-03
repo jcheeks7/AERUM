@@ -16,7 +16,7 @@ class MissionSpecialist:
                 # Simulate finding an anomaly
                 if "scan_environment" in msg["content"]:
                     time.sleep(1)
-                    self.logger.log(self.name, "⚠️ Anomaly detected in scan results")
+                    self.logger.log(self.name, "Anomaly detected in scan results")
                     self.bus.send(self.name, "OrbitalEngineer", "Anomaly detected in scan results")
                     self.bus.send(self.name, "MissionLead", "Scan complete. Anomaly forwarded to engineering.")
             time.sleep(1)
