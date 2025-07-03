@@ -40,14 +40,24 @@ class MissionLead:
                 message = f"Notify: {action} complete"
                 self.bus.send(self.name, recipient, message)
 
-        # Collect final reports from agents
+        # Wait and collect responses
         time.sleep(1.5)
         messages = self.bus.fetch(self.name)
+
+        # Track task completions
+        completed_steps = 0
+        total_steps = len(mission["steps"])
+
         for msg in messages:
             self.logger.log(self.name, f"Received from {msg['from']}: {msg['content']}")
+            if "complete" in msg["content"]:
+                completed_steps += 1
             self.state["responses_received"] += 1
 
         # Final mission summary
-        if self.state["responses_received"] >= self.state["expected_responses"]:
-            self.logger.log(self.name, "All agents have reported back. Mission is complete.")
+        self.logger.log(self.name, f"Completed {completed_steps}/{total_steps} steps.")
+        if completed_steps >= total_steps:
+            self.logger.log(self.name, "All tasks successfully completed. Mission is complete.")
             self.state["mission_complete"] = True
+        else:
+            self.logger.log(self.name, "Mission ended with incomplete tasks.") 
