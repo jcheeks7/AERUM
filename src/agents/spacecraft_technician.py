@@ -28,15 +28,15 @@ class SpacecraftTechnician:
                 self.logger.log(self.name, f"Sent to MissionLead: {report}")
                 if "adjust_thrusters" in content:
                     self.logger.log(self.name, "Adjusting RCS thruster alignment...")
-                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {action}")
+                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {content}")
 
                 elif "calibrate_radiators" in content:
                     self.logger.log(self.name, "Calibrating thermal radiators to optimal flow...")
-                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {action}")
+                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {content}")
 
                 elif "dump_propellant" in content:
                     self.logger.log(self.name, "Emergency propellant dump initiated!")
                     self.bus.send(self.name, "MissionLead", "Propellant dump complete.")
-                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {action}")
+                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {content}")
             
             time.sleep(1)
