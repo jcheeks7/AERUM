@@ -20,7 +20,7 @@ class MissionLead:
         return mission
 
     def run(self):
-        mission = self.load_mission("debris_removal.json")
+        mission = self.load_mission(mission_filename)
         self.logger.log(self.name, f"Starting mission: {mission['name']}")
 
         for step in mission["steps"]:
