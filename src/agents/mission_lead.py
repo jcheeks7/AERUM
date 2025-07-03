@@ -19,7 +19,7 @@ class MissionLead:
             mission = json.load(f)
         return mission
 
-    def run(self):
+    def run(self, mission_filename):
         mission = self.load_mission(mission_filename)
         self.logger.log(self.name, f"Starting mission: {mission['name']}")
 
