@@ -10,7 +10,7 @@ from agents.spacecraft_technician import SpacecraftTechnician
 
 # CLI mission selector
 def select_mission():
-    mission_dir = os.path.join("..", "missions")
+    mission_dir = os.path.join("missions")
     files = [f for f in os.listdir(mission_dir) if f.endswith(".json")]
 
     print("📡 AERUM MISSION CONTROL")
