@@ -1,3 +1,5 @@
+import time
+
 class OrbitalEngineer:
     def __init__(self, logger, bus):
         self.logger = logger
