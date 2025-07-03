@@ -1,4 +1,6 @@
 import time
+import json
+import os
 
 class MissionLead:
     def __init__(self, logger, bus):
@@ -11,22 +13,26 @@ class MissionLead:
             "mission_complete": False
         }
 
-    def run(self):
-        self.logger.log(self.name, "Starting mission: debris_removal")
-        steps = [
-            ("boot_all_systems", ["OrbitalEngineer", "MissionSpecialist", "SpacecraftTechnician"]),
-            ("scan_environment", ["MissionSpecialist"]),
-            ("calculate_maneuver", ["OrbitalEngineer"]),
-            ("execute_burn", ["SpacecraftTechnician"])
-        ]
+    def load_mission(self, filename):
+        path = os.path.join("..", "missions", filename)
+        with open(path, "r") as f:
+            mission = json.load(f)
+        return mission
 
-        for action, recipients in steps:
+    def run(self):
+        mission = self.load_mission("debris_removal.json")
+        self.logger.log(self.name, f"Starting mission: {mission['name']}")
+
+        for step in mission["steps"]:
+            action = step["action"]
+            recipients = step["recipients"]
+
             self.logger.log(self.name, f"Action: {action}")
             time.sleep(1)
             for recipient in recipients:
                 self.bus.send(self.name, recipient, f"Notify: {action} complete")
 
-        # Wait and process incoming agent reports
+        # Wait for responses
         time.sleep(1.5)
         messages = self.bus.fetch(self.name)
         for msg in messages:
