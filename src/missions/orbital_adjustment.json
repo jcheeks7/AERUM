@@ -1,0 +1,21 @@
+{
+  "name": "orbital_adjustment",
+  "steps": [
+    {
+      "action": "boot_all_systems",
+      "recipients": ["OrbitalEngineer", "SpacecraftTechnician"]
+    },
+    {
+      "action": "check_orbit",
+      "recipients": ["OrbitalEngineer"]
+    },
+    {
+      "action": "recalculate_trajectory",
+      "recipients": ["OrbitalEngineer"]
+    },
+    {
+      "action": "adjust_thrusters",
+      "recipients": ["SpacecraftTechnician"]
+    }
+  ]
+}
