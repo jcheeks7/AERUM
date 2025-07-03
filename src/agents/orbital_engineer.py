@@ -33,28 +33,28 @@ class OrbitalEngineer:
                     report = f"Diagnostics complete. Count: {self.state['diagnostic_count']}. Systems nominal."
                     self.bus.send(self.name, "MissionLead", report)
                     self.logger.log(self.name, f"Sent to MissionLead: {report}")
-                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {action}")
+                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {content}")
 
                 elif "check_orbit" in content:
                     self.logger.log(self.name, "Checking orbital parameters...")
                     self.state["last_orbit_check"] = datetime.now().isoformat()
-                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {action}")
+                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {content}")
                 
                 elif "recalculate_trajectory" in content:
                     self.logger.log(self.name, "Recalculating trajectory using updated parameters...")
                     self.state["diagnostic_count"] += 1
-                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {action}")
+                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {content}")
                 
                 elif "analyze_thermal_data" in content:
                     self.logger.log(self.name, "Analyzing thermal data for hotspots...")
-                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {action}")
+                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {content}")
                 
                 elif "run_emergency_diagnostics" in content:
                     self.logger.log(self.name, "Emergency diagnostics in progress")
                     self.state["systems_nominal"] = False
                     self.bus.send(self.name, "MissionLead", "Emergency diagnostics complete. System compromised.")
-                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {action}")
+                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {content}")
                 else:
                     self.logger.log(self.name, "Running standard diagnostics...")
-                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {action}")
+                    self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {content}")
             time.sleep(1)
