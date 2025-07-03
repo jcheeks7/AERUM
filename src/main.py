@@ -1,25 +1,23 @@
+import threading
+from utils.logger import Logger
+from utils.message_bus import MessageBus
 from agents.mission_lead import MissionLead
 from agents.orbital_engineer import OrbitalEngineer
 from agents.mission_specialist import MissionSpecialist
-from utils.logger import Logger
-import time
+from agents.spacecraft_technician import SpacecraftTechnician
 
-# Initialize logger
 logger = Logger()
+bus = MessageBus()
 
-# Message bus for communication
-message_bus = []
+mission_lead = MissionLead(logger, bus)
+orbital_engineer = OrbitalEngineer(logger, bus)
+mission_specialist = MissionSpecialist(logger, bus)
+spacecraft_technician = SpacecraftTechnician(logger, bus)
 
-# Initialize agents with both logger and bus
-mission_lead = MissionLead(logger, message_bus)
-orbital_engineer = OrbitalEngineer(logger, message_bus)
-mission_specialist = MissionSpecialist(logger)
+# Run passive agents in background threads
+threading.Thread(target=orbital_engineer.run, daemon=True).start()
+threading.Thread(target=mission_specialist.run, daemon=True).start()
+threading.Thread(target=spacecraft_technician.run, daemon=True).start()
 
-# Run the mission
+# MissionLead runs in the main thread
 mission_lead.run()
-
-# Distribute messages to other agents
-for message in message_bus:
-    orbital_engineer.receive_message(message)
-    mission_specialist.receive_message(message)
-
