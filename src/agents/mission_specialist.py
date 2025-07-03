@@ -5,18 +5,27 @@ class MissionSpecialist:
         self.name = "MissionSpecialist"
         self.logger = logger
         self.bus = bus
+        self.state = {
+            "scans_completed": 0,
+            "anomalies_found": 0
+        }
 
     def run(self):
         while True:
             messages = self.bus.fetch(self.name)
             for msg in messages:
-                self.logger.log(self.name, f"Received from {msg['from']}: {msg['content']}")
+                content = msg["content"]
+                sender = msg["from"]
+                self.logger.log(self.name, f"Received from {sender}: {content}")
                 self.logger.log(self.name, "Analyzing mission data...")
 
-                # Simulate finding an anomaly
-                if "scan_environment" in msg["content"]:
+                if "scan_environment" in content:
                     time.sleep(1)
+                    self.state["scans_completed"] += 1
+                    self.state["anomalies_found"] += 1
+
                     self.logger.log(self.name, "Anomaly detected in scan results")
                     self.bus.send(self.name, "OrbitalEngineer", "Anomaly detected in scan results")
                     self.bus.send(self.name, "MissionLead", "Scan complete. Anomaly forwarded to engineering.")
+                    self.logger.log(self.name, f"Sent report: {self.state['anomalies_found']} anomalies found across {self.state['scans_completed']} scans")
             time.sleep(1)
