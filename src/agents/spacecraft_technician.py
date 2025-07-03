@@ -26,4 +26,14 @@ class SpacecraftTechnician:
                 report = f"Maintenance task #{self.state['maintenance_tasks']} complete at {self.state['last_task_time']}"
                 self.bus.send(self.name, "MissionLead", report)
                 self.logger.log(self.name, f"Sent to MissionLead: {report}")
+                if "adjust_thrusters" in content:
+                    self.logger.log(self.name, "Adjusting RCS thruster alignment...")
+
+                elif "calibrate_radiators" in content:
+                    self.logger.log(self.name, "Calibrating thermal radiators to optimal flow...")
+
+                elif "dump_propellant" in content:
+                    self.logger.log(self.name, "Emergency propellant dump initiated!")
+                    self.bus.send(self.name, "MissionLead", "Propellant dump complete.")
+            
             time.sleep(1)
