@@ -16,7 +16,7 @@ orbital_engineer = OrbitalEngineer(logger, message_bus)
 mission_specialist = MissionSpecialist(logger)
 
 # Run the mission
-mission_lead.run_mission()
+mission_lead.run()
 
 # Distribute messages to other agents
 for message in message_bus:
