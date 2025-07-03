@@ -1,0 +1,21 @@
+{
+  "name": "emergency_abort",
+  "steps": [
+    {
+      "action": "trigger_abort",
+      "recipients": ["MissionLead"]
+    },
+    {
+      "action": "dump_propellant",
+      "recipients": ["SpacecraftTechnician"]
+    },
+    {
+      "action": "run_emergency_diagnostics",
+      "recipients": ["OrbitalEngineer"]
+    },
+    {
+      "action": "prepare_data_dump",
+      "recipients": ["MissionSpecialist"]
+    }
+  ]
+}
