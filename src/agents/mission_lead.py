@@ -27,6 +27,7 @@ class MissionLead:
     def run(self, mission_filename):
         mission = self.load_mission(mission_filename)
         self.logger.log(self.name, f"Starting mission: {mission['name']}")
+        self.expected_responses = sum(1 for step in mission["steps"] if step["recipients"])
 
         for step in mission["steps"]:
             action = step["action"]
