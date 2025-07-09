@@ -35,7 +35,6 @@ class MissionLead:
 
             self.logger.log(self.name, f"Action: {action}")
             time.sleep(1)
-
             if not recipients:
                 self.state["completed_actions"].append(action)
                 continue
