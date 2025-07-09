@@ -2,7 +2,6 @@ import os
 import threading
 import time
 import curses
-import json
 from collections import deque
 from datetime import datetime
 from utils.logger import Logger
@@ -28,9 +27,18 @@ def dashboard_loop(stdscr, mission_file, mission_lead, bus):
     curses.curs_set(0)
     stdscr.nodelay(True)
     height, width = stdscr.getmaxyx()
+
+    # Boot sequence
+    boot_action = "boot_all_systems"
+    mission_lead.logger.log(mission_lead.name, f"Action: {boot_action}")
+    for agent in ["OrbitalEngineer", "MissionSpecialist", "SpacecraftTechnician"]:
+        bus.send(mission_lead.name, agent, boot_action)
+    time.sleep(1.5)
+
     mission_data = mission_lead.load_mission(mission_file)
     actions = [step.get('action') for step in mission_data.get('steps', [])]
     tasks_completed = set()
+
     def start_mission():
         mission_lead.run(mission_file)
     threading.Thread(target=start_mission, daemon=True).start()
