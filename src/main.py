@@ -24,17 +24,30 @@ def wrap_logger_for_ui(logger):
         agent_status[agent] = message
     logger.log = ui_log
 
+# Boot sequence before mission selection
+def run_boot_sequence(logger, bus):
+    boot_actions = ["boot_power", "boot_comms"]
+    for action in boot_actions:
+        logger.log("MissionLead", f"Action: {action}")
+        for agent in ["OrbitalEngineer", "MissionSpecialist", "SpacecraftTechnician", "SystemMonitor"]:
+            bus.send("MissionLead", agent, action)
+        time.sleep(1)
+    time.sleep(1)
+    failures = bus.fetch("MissionLead")
+    if failures:
+        for msg in failures:
+            if msg.get("content", "").startswith("SYSTEM_FAILURE:"):
+                logger.log("MissionLead", f"Boot failure: {msg['content']}")
+        logger.log("MissionLead", "Boot sequence incomplete. Please troubleshoot.")
+        return False
+    else:
+        logger.log("MissionLead", "All systems nominal.")
+        return True
+
 def dashboard_loop(stdscr, mission_file, mission_lead, bus):
     curses.curs_set(0)
     stdscr.nodelay(True)
     height, width = stdscr.getmaxyx()
-
-    boot_action = "boot_all_systems"
-    mission_lead.logger.log(mission_lead.name, f"Action: {boot_action}")
-    for agent in ["OrbitalEngineer", "MissionSpecialist", "SpacecraftTechnician", "SystemMonitor"]:
-        bus.send(mission_lead.name, agent, boot_action)
-    time.sleep(1.5)
-
     mission_data = mission_lead.load_mission(mission_file)
     actions = [step.get('action') for step in mission_data.get('steps', [])]
     tasks_completed = set()
@@ -96,6 +109,9 @@ def main():
     logger = Logger()
     wrap_logger_for_ui(logger)
     bus = MessageBus()
+
+    if not run_boot_sequence(logger, bus):
+        return
 
     mission_file = select_mission()
 
