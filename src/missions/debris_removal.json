@@ -2,10 +2,6 @@
   "name": "debris_removal",
   "steps": [
     {
-      "action": "boot_all_systems",
-      "recipients": ["OrbitalEngineer", "MissionSpecialist", "SpacecraftTechnician"]
-    },
-    {
       "action": "scan_environment",
       "recipients": ["MissionSpecialist"]
     },
