@@ -29,7 +29,6 @@ def dashboard_loop(stdscr, mission_file, mission_lead, bus):
     stdscr.nodelay(True)
     height, width = stdscr.getmaxyx()
 
-    # Boot sequence
     boot_action = "boot_all_systems"
     mission_lead.logger.log(mission_lead.name, f"Action: {boot_action}")
     for agent in ["OrbitalEngineer", "MissionSpecialist", "SpacecraftTechnician", "SystemMonitor"]:
@@ -98,6 +97,8 @@ def main():
     wrap_logger_for_ui(logger)
     bus = MessageBus()
 
+    mission_file = select_mission()
+
     mission_lead = MissionLead(logger, bus)
     orbital_engineer = OrbitalEngineer(logger, bus)
     mission_specialist = MissionSpecialist(logger, bus)
@@ -109,7 +110,6 @@ def main():
     threading.Thread(target=spacecraft_technician.run, daemon=True).start()
     threading.Thread(target=monitoring_agent.run, daemon=True).start()
 
-    mission_file = select_mission()
     curses.wrapper(dashboard_loop, mission_file, mission_lead, bus)
 
 if __name__ == "__main__":
