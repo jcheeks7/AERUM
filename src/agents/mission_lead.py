@@ -7,17 +7,12 @@ class MissionLead:
         self.name = "MissionLead"
         self.logger = logger
         self.bus = bus
-        self.state = {
-            "responses_received": 0,
-            "expected_responses": 3,
-            "mission_complete": False
-        }
 
     def load_mission(self, filename):
         """Load mission steps from a JSON file."""
         path = os.path.join("missions", filename)
         try:
-            with open(path, "r") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 mission = json.load(f)
             return mission
         except Exception as e:
@@ -27,42 +22,42 @@ class MissionLead:
     def run(self, mission_filename):
         mission = self.load_mission(mission_filename)
         self.logger.log(self.name, f"Starting mission: {mission['name']}")
-        self.expected_responses = sum(1 for step in mission["steps"] if step["recipients"])
 
-        for step in mission["steps"]:
-            action = step["action"]
-            recipients = step["recipients"]
+        external_steps = []
+        internal_completed = []
+        for step in mission.get("steps", []):
+            action = step.get("action")
+            recipients = [r for r in step.get("recipients", []) if r != self.name]
+            if recipients:
+                external_steps.append((action, recipients))
+            else:
+                internal_completed.append(action)
 
+        valid_actions = [action for action, _ in external_steps]
+
+        for action, recipients in external_steps:
             self.logger.log(self.name, f"Action: {action}")
             time.sleep(1)
-            if not recipients:
-                self.state["completed_actions"].append(action)
-                continue
-                
             for recipient in recipients:
-               if recipient == self.name:
-                   continue
-               message = f"Notify: {action} complete"
-               self.bus.send(self.name, recipient, message)
-
-
+                self.bus.send(self.name, recipient, action)
 
         time.sleep(1.5)
         messages = self.bus.fetch(self.name)
-        
-        completed_steps = 0
-        total_steps = len(mission["steps"])
 
+        completed = set(internal_completed)
         for msg in messages:
-            self.logger.log(self.name, f"Received from {msg['from']}: {msg['content']}")
-            if msg["content"].startswith("TASK_COMPLETE:"):
-                completed_steps += 1
-            self.state["responses_received"] += 1
+            content = msg.get("content", "")
+            sender = msg.get("from", "")
+            self.logger.log(self.name, f"Received from {sender}: {content}")
+            if content.startswith("TASK_COMPLETE:" ):
+                action = content.split("TASK_COMPLETE:", 1)[1].strip()
+                if action in valid_actions:
+                    completed.add(action)
 
-
-        self.logger.log(self.name, f"Completed {completed_steps}/{total_steps} steps.")
-        if completed_steps >= total_steps:
+        total = len(valid_actions)
+        completed_count = len([a for a in completed if a in valid_actions])
+        self.logger.log(self.name, f"Completed {completed_count}/{total} steps.")
+        if completed_count >= total:
             self.logger.log(self.name, "All tasks successfully completed. Mission is complete.")
-            self.state["mission_complete"] = True
         else:
-            self.logger.log(self.name, "Mission ended with incomplete tasks.") 
+            self.logger.log(self.name, "⚠Mission ended with incomplete tasks.")
