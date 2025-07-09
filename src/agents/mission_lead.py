@@ -38,7 +38,7 @@ class MissionLead:
 
             if not recipients:
                 self.state["completed_actions"].append(action)
-                    continue
+                continue
 
            for recipient in recipients:
                if recipient == self.name:
