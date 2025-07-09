@@ -28,7 +28,6 @@ class MissionLead:
         mission = self.load_mission(mission_filename)
         self.logger.log(self.name, f"Starting mission: {mission['name']}")
 
-        # Execute mission steps
         for step in mission["steps"]:
             action = step["action"]
             recipients = step["recipients"]
@@ -36,15 +35,18 @@ class MissionLead:
             self.logger.log(self.name, f"Action: {action}")
             time.sleep(1)
 
+            if not recipients:
+            self.state["completed_actions"].append(action)
+            continue
+
             for recipient in recipients:
                 message = f"Notify: {action} complete"
                 self.bus.send(self.name, recipient, message)
 
-        # Wait and collect responses
+
         time.sleep(1.5)
         messages = self.bus.fetch(self.name)
-
-        # Track task completions
+        
         completed_steps = 0
         total_steps = len(mission["steps"])
 
@@ -54,7 +56,7 @@ class MissionLead:
                 completed_steps += 1
             self.state["responses_received"] += 1
 
-        # Final mission summary
+
         self.logger.log(self.name, f"Completed {completed_steps}/{total_steps} steps.")
         if completed_steps >= total_steps:
             self.logger.log(self.name, "All tasks successfully completed. Mission is complete.")
