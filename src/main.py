@@ -10,6 +10,7 @@ from agents.mission_lead import MissionLead
 from agents.orbital_engineer import OrbitalEngineer
 from agents.mission_specialist import MissionSpecialist
 from agents.spacecraft_technician import SpacecraftTechnician
+from agents.monitoring_agent import MonitoringAgent
 
 log_buffer = deque(maxlen=100)
 agent_status = {}
@@ -31,7 +32,7 @@ def dashboard_loop(stdscr, mission_file, mission_lead, bus):
     # Boot sequence
     boot_action = "boot_all_systems"
     mission_lead.logger.log(mission_lead.name, f"Action: {boot_action}")
-    for agent in ["OrbitalEngineer", "MissionSpecialist", "SpacecraftTechnician"]:
+    for agent in ["OrbitalEngineer", "MissionSpecialist", "SpacecraftTechnician", "SystemMonitor"]:
         bus.send(mission_lead.name, agent, boot_action)
     time.sleep(1.5)
 
@@ -96,14 +97,19 @@ def main():
     logger = Logger()
     wrap_logger_for_ui(logger)
     bus = MessageBus()
-    mission_file = select_mission()
+
     mission_lead = MissionLead(logger, bus)
     orbital_engineer = OrbitalEngineer(logger, bus)
     mission_specialist = MissionSpecialist(logger, bus)
     spacecraft_technician = SpacecraftTechnician(logger, bus)
+    monitoring_agent = MonitoringAgent(logger, bus)
+
     threading.Thread(target=orbital_engineer.run, daemon=True).start()
     threading.Thread(target=mission_specialist.run, daemon=True).start()
     threading.Thread(target=spacecraft_technician.run, daemon=True).start()
+    threading.Thread(target=monitoring_agent.run, daemon=True).start()
+
+    mission_file = select_mission()
     curses.wrapper(dashboard_loop, mission_file, mission_lead, bus)
 
 if __name__ == "__main__":
