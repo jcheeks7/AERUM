@@ -60,4 +60,4 @@ class MissionLead:
         if completed_count >= total:
             self.logger.log(self.name, "All tasks successfully completed. Mission is complete.")
         else:
-            self.logger.log(self.name, "⚠Mission ended with incomplete tasks.")
+            self.logger.log(self.name, "Mission ended with incomplete tasks.")
