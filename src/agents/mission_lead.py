@@ -38,8 +38,8 @@ class MissionLead:
             if not recipients:
                 self.state["completed_actions"].append(action)
                 continue
-
-           for recipient in recipients:
+                
+            for recipient in recipients:
                if recipient == self.name:
                    continue
                message = f"Notify: {action} complete"
