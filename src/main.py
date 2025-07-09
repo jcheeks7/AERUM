@@ -24,30 +24,53 @@ def wrap_logger_for_ui(logger):
         agent_status[agent] = message
     logger.log = ui_log
 
-# Boot sequence before mission selection
-def run_boot_sequence(logger, bus):
+# Pre-mission boot sequence
+
+def run_boot_sequence(logger, bus, timeout=5):
     boot_actions = ["boot_power", "boot_comms"]
+    acked = set()
+    failure_detected = False
+    start = time.time()
+
     for action in boot_actions:
         logger.log("MissionLead", f"Action: {action}")
         for agent in ["OrbitalEngineer", "MissionSpecialist", "SpacecraftTechnician", "SystemMonitor"]:
             bus.send("MissionLead", agent, action)
-        time.sleep(1)
-    time.sleep(1)
-    failures = bus.fetch("MissionLead")
-    if failures:
-        for msg in failures:
-            if msg.get("content", "").startswith("SYSTEM_FAILURE:"):
-                logger.log("MissionLead", f"Boot failure: {msg['content']}")
+
+    while time.time() - start < timeout and len(acked) < len(boot_actions):
+        msgs = bus.fetch("MissionLead")
+        for msg in msgs:
+            content = msg.get("content", "")
+            if content.startswith("TASK_COMPLETE:"):
+                act = content.split("TASK_COMPLETE:", 1)[1].strip()
+                if act in boot_actions:
+                    acked.add(act)
+            elif content.startswith("SYSTEM_FAILURE:"):
+                failure = content.split(":", 1)[1].strip()
+                failure_detected = True
+                logger.log("MissionLead", f"Boot failure detected: {failure}")
+                fix_action = f"fix_{failure}"
+                logger.log("MissionLead", f"Delegating fix: {fix_action} to SpacecraftTechnician")
+                bus.send("MissionLead", "SpacecraftTechnician", fix_action)
+        time.sleep(0.1)
+
+    if failure_detected:
         logger.log("MissionLead", "Boot sequence incomplete. Please troubleshoot.")
         return False
-    else:
+    if len(acked) == len(boot_actions):
         logger.log("MissionLead", "All systems nominal.")
         return True
+    missing = set(boot_actions) - acked
+    logger.log("MissionLead", f"Boot incomplete. Missing acknowledgements: {', '.join(missing)}")
+    return False
+
+# Curses-based dashboard
 
 def dashboard_loop(stdscr, mission_file, mission_lead, bus):
     curses.curs_set(0)
     stdscr.nodelay(True)
     height, width = stdscr.getmaxyx()
+
     mission_data = mission_lead.load_mission(mission_file)
     actions = [step.get('action') for step in mission_data.get('steps', [])]
     tasks_completed = set()
@@ -65,6 +88,7 @@ def dashboard_loop(stdscr, mission_file, mission_lead, bus):
         for agent, status in agent_status.items():
             stdscr.addstr(row, 4, f"{agent}: {status}")
             row += 1
+
         stdscr.addstr(row + 1, 2, "Task Status:")
         row += 2
         for entry in list(log_buffer):
@@ -75,10 +99,12 @@ def dashboard_loop(stdscr, mission_file, mission_lead, bus):
             status_char = "✔" if action in tasks_completed else "✖"
             stdscr.addstr(row, 4, f"{status_char} {action}")
             row += 1
+
         stdscr.addstr(3, width // 2, "Log:")
         log_start = max(0, len(log_buffer) - (height - row - 2))
         for idx, entry in enumerate(list(log_buffer)[log_start:]):
             stdscr.addstr(row + idx, width // 2, entry[: width // 2 - 1])
+
         stdscr.refresh()
         try:
             ch = stdscr.getkey()
@@ -104,6 +130,8 @@ def select_mission():
                 print("Invalid selection. Try again.")
         except ValueError:
             print("Please enter a number.")
+
+# Entry point
 
 def main():
     logger = Logger()
