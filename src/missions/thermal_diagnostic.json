@@ -2,10 +2,6 @@
   "name": "thermal_diagnostics",
   "steps": [
     {
-      "action": "boot_all_systems",
-      "recipients": ["OrbitalEngineer", "MissionSpecialist"]
-    },
-    {
       "action": "run_thermal_scan",
       "recipients": ["MissionSpecialist"]
     },
