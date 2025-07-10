@@ -1,0 +1,3 @@
+[2025-07-10T13:30:08.099011] [MissionLead] Action: boot_power
+[2025-07-10T13:30:08.099503] [MissionLead] Action: boot_comms
+[2025-07-10T13:30:13.115429] [MissionLead] Boot incomplete. Missing acknowledgements: boot_comms, boot_power

@@ -1,0 +1,25 @@
+[2025-07-10T13:52:42.278262] [MissionLead] Action: boot_power
+lure detected
+[2025-07-10T13:52:42.278911] [MissionLead] Action: boot_comms
+[2025-07-10T13:52:42.279276] [MissionLead] Boot failure detected: comms
+[2025-07-10T13:52:42.279619] [MissionLead] Delegating fix: fix_comms to SpacecraftTechnician
+[2025-07-10T13:52:42.279956] [MissionLead] Retrying boot action: boot_comms
+[2025-07-10T13:52:43.278614] [SpacecraftTechnician] Received from MissionLead: boot_power
+[2025-07-10T13:52:43.279070] [SpacecraftTechnician] Power systems powering on...
+[2025-07-10T13:52:43.279111] [SystemMonitor] Received from MissionLead: boot_power
+[2025-07-10T13:52:43.279422] [SpacecraftTechnician] Received from MissionLead: boot_comms
+[2025-07-10T13:52:43.283052] [SystemMonitor] Verifying power system startup...
+[2025-07-10T13:52:43.283212] [SpacecraftTechnician] Communications systems initializing...
+[2025-07-10T13:52:43.283440] [SystemMonitor] Received from MissionLead: boot_comms
+[2025-07-10T13:52:43.283632] [SpacecraftTechnician] Received from MissionLead: fix_comms
+[2025-07-10T13:52:43.283870] [SystemMonitor] Verifying communications system startup...
+[2025-07-10T13:52:43.284065] [SpacecraftTechnician] Repairing communications system...
+[2025-07-10T13:52:43.284279] [SystemMonitor] Received from MissionLead: boot_comms
+[2025-07-10T13:52:43.284456] [SpacecraftTechnician] Received from MissionLead: boot_comms
+[2025-07-10T13:52:43.284707] [SystemMonitor] Verifying communications system startup...
+[2025-07-10T13:52:43.284798] [SpacecraftTechnician] Communications systems initializing...
+[2025-07-10T13:52:43.285056] [SystemMonitor] Communications failure detected
+[2025-07-10T13:52:43.382998] [MissionLead] Boot failure detected: comms
+[2025-07-10T13:52:43.383437] [MissionLead] Delegating fix: fix_comms to SpacecraftTechnician
+[2025-07-10T13:52:43.383840] [MissionLead] Retrying boot action: boot_comms
+[2025-07-10T13:52:43.484291] [MissionLead] Boot sequence incomplete. Please troubleshoot.

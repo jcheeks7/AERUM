@@ -1,0 +1,16 @@
+[2025-07-03T15:47:47.989245] [MissionLead] Starting mission: debris_removal
+[2025-07-03T15:47:47.989302] [MissionLead] Action: boot_all_systems
+[2025-07-03T15:47:48.089769] [MissionLead] Action: scan_environment
+[2025-07-03T15:47:48.190294] [MissionLead] Action: calculate_maneuver
+[2025-07-03T15:47:48.290852] [MissionLead] Action: execute_maneuver
+[2025-07-03T15:47:48.391373] [MissionLead] Action: report_status
+[2025-07-03T15:47:48.491497] [OrbitalEngineer] Received from MissionLead: Notify: boot_all_systems complete
+[2025-07-03T15:47:48.491552] [OrbitalEngineer] Running diagnostics...
+[2025-07-03T15:47:48.491624] [OrbitalEngineer] Received from MissionLead: Notify: scan_environment complete
+[2025-07-03T15:47:48.491672] [OrbitalEngineer] Running diagnostics...
+[2025-07-03T15:47:48.491722] [OrbitalEngineer] Received from MissionLead: Notify: calculate_maneuver complete
+[2025-07-03T15:47:48.491769] [OrbitalEngineer] Running diagnostics...
+[2025-07-03T15:47:48.491821] [OrbitalEngineer] Received from MissionLead: Notify: execute_maneuver complete
+[2025-07-03T15:47:48.491865] [OrbitalEngineer] Running diagnostics...
+[2025-07-03T15:47:48.491895] [OrbitalEngineer] Received from MissionLead: Notify: report_status complete
+[2025-07-03T15:47:48.491921] [OrbitalEngineer] Running diagnostics...

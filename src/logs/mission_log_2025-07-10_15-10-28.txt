@@ -1,0 +1,29 @@
+[2025-07-10T15:10:28.032805] [MissionLead] Action: boot_power
+[2025-07-10T15:10:29.033071] [SystemMonitor] Received from MissionLead: boot_power
+[2025-07-10T15:10:29.033111] [SpacecraftTechnician] Received from MissionLead: boot_power
+[2025-07-10T15:10:29.033749] [SystemMonitor] Power system failure detected during boot
+[2025-07-10T15:10:29.033840] [SpacecraftTechnician] Power systems powering on...
+[2025-07-10T15:10:29.036049] [MissionLead] Boot failure detected: power
+[2025-07-10T15:10:29.036406] [MissionLead] Delegating fix_power
+[2025-07-10T15:10:30.034601] [SystemMonitor] Received from MissionLead: fix_power
+[2025-07-10T15:10:30.034645] [SpacecraftTechnician] Received from MissionLead: fix_power
+[2025-07-10T15:10:30.038710] [SystemMonitor] Power system repaired, resetting status...
+[2025-07-10T15:10:30.038791] [SpacecraftTechnician] Repairing power system...
+[2025-07-10T15:10:30.039162] [MissionLead] Retrying boot_power after repair
+[2025-07-10T15:10:30.039612] [MissionLead] Retrying boot_power after repair
+[2025-07-10T15:10:31.039591] [SpacecraftTechnician] Received from MissionLead: boot_power
+[2025-07-10T15:10:31.039636] [SystemMonitor] Received from MissionLead: boot_power
+[2025-07-10T15:10:31.040184] [SystemMonitor] Verifying power system startup...
+[2025-07-10T15:10:31.040100] [SpacecraftTechnician] Power systems powering on...
+[2025-07-10T15:10:31.040529] [SystemMonitor] Received from MissionLead: boot_power
+[2025-07-10T15:10:31.040586] [SpacecraftTechnician] Received from MissionLead: boot_power
+[2025-07-10T15:10:31.040883] [SystemMonitor] Verifying power system startup...
+[2025-07-10T15:10:31.040962] [SpacecraftTechnician] Power systems powering on...
+[2025-07-10T15:10:31.043320] [MissionLead] Action: boot_comms
+[2025-07-10T15:10:32.041454] [SpacecraftTechnician] Received from MissionLead: boot_comms
+[2025-07-10T15:10:32.041490] [SystemMonitor] Received from MissionLead: boot_comms
+[2025-07-10T15:10:32.041943] [SpacecraftTechnician] Communications systems initializing...
+[2025-07-10T15:10:32.041992] [SystemMonitor] Communications failure detected during boot
+[2025-07-10T15:10:32.046655] [MissionLead] All systems nominal.
+[2025-07-10T15:10:47.945951] [MissionLead] Starting mission: debris_removal
+[2025-07-10T15:10:47.946374] [MissionLead] Action: scan_environment

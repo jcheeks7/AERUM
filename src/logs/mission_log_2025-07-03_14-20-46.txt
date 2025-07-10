@@ -1,0 +1,20 @@
+[2025-07-03T14:20:48.157256] [MissionLead] Starting mission: emergency_abort
+[2025-07-03T14:20:48.157729] [MissionLead] Action: trigger_abort
+[2025-07-03T14:20:49.158607] [MissionLead] Action: dump_propellant
+[2025-07-03T14:20:50.159619] [MissionLead] Action: run_emergency_diagnostics
+[2025-07-03T14:20:51.157948] [SpacecraftTechnician] Received from MissionLead: Notify: dump_propellant complete
+[2025-07-03T14:20:51.158505] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-03T14:20:51.158835] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #1 complete at 2025-07-03T14:20:51.158829
+[2025-07-03T14:20:51.159243] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-03T14:20:51.160461] [MissionLead] Action: prepare_data_dump
+[2025-07-03T14:20:52.158297] [OrbitalEngineer] Received from MissionLead: Notify: run_emergency_diagnostics complete
+[2025-07-03T14:20:52.158713] [OrbitalEngineer] Emergency diagnostics in progress
+[2025-07-03T14:20:53.158595] [MissionSpecialist] Received from MissionLead: Notify: prepare_data_dump complete
+[2025-07-03T14:20:53.159004] [MissionSpecialist] Analyzing mission data...
+[2025-07-03T14:20:53.159322] [MissionSpecialist] Packaging and encrypting mission data for uplink...
+[2025-07-03T14:20:53.661317] [MissionLead] Received from MissionLead: Notify: trigger_abort complete
+[2025-07-03T14:20:53.661697] [MissionLead] Received from SpacecraftTechnician: Maintenance task #1 complete at 2025-07-03T14:20:51.158829
+[2025-07-03T14:20:53.662077] [MissionLead] Received from SpacecraftTechnician: Propellant dump complete.
+[2025-07-03T14:20:53.662415] [MissionLead] Received from OrbitalEngineer: Emergency diagnostics complete. System compromised.
+[2025-07-03T14:20:53.662706] [MissionLead] Received from MissionSpecialist: Data uplink ready.
+[2025-07-03T14:20:53.662984] [MissionLead] All agents have reported back. Mission is complete.

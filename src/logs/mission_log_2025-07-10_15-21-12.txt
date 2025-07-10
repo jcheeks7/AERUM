@@ -1,0 +1,25 @@
+[2025-07-10T15:21:12.560136] [MissionLead] Action: boot_power
+[2025-07-10T15:21:13.560089] [SpacecraftTechnician] Received from MissionLead: boot_power
+[2025-07-10T15:21:13.560602] [SystemMonitor] Received from MissionLead: boot_power
+[2025-07-10T15:21:13.560687] [SpacecraftTechnician] Power systems powering on...
+[2025-07-10T15:21:13.561119] [SystemMonitor] Verifying power system startup...
+[2025-07-10T15:21:13.564142] [MissionLead] Acknowledged boot_power by SpacecraftTechnician
+[2025-07-10T15:21:13.564544] [MissionLead] Acknowledged boot_power by SystemMonitor
+[2025-07-10T15:21:13.668714] [MissionLead] Action: boot_comms
+[2025-07-10T15:21:14.561467] [SpacecraftTechnician] Received from MissionLead: boot_comms
+[2025-07-10T15:21:14.561939] [SystemMonitor] Received from MissionLead: boot_comms
+[2025-07-10T15:21:14.562018] [SpacecraftTechnician] Communications systems initializing...
+[2025-07-10T15:21:14.562340] [SystemMonitor] Verifying communications system startup...
+[2025-07-10T15:21:14.571577] [MissionLead] Acknowledged boot_comms by SpacecraftTechnician
+[2025-07-10T15:21:14.571905] [MissionLead] Acknowledged boot_comms by SystemMonitor
+[2025-07-10T15:21:14.672358] [MissionLead] All systems nominal.
+[2025-07-10T15:21:17.030906] [MissionLead] Starting mission: debris_removal
+[2025-07-10T15:21:17.031254] [MissionLead] Action: scan_environment
+[2025-07-10T15:21:18.031797] [MissionLead] Action: calculate_maneuver
+[2025-07-10T15:21:19.030428] [MissionSpecialist] Received from MissionLead: scan_environment
+[2025-07-10T15:21:19.030953] [MissionSpecialist] Analyzing mission data...
+[2025-07-10T15:21:19.032484] [MissionLead] Action: execute_burn
+[2025-07-10T15:21:20.030422] [OrbitalEngineer] Received from MissionLead: calculate_maneuver
+[2025-07-10T15:21:20.030879] [OrbitalEngineer] Running standard diagnostics...
+[2025-07-10T15:21:20.031410] [MissionSpecialist] Anomaly detected in scan results
+[2025-07-10T15:21:20.031701] [MissionSpecialist] Sent report: 1 anomalies found across 1 scans

@@ -1,0 +1,21 @@
+[2025-07-09T17:04:03.379066] [MissionLead] Action: boot_power
+[2025-07-09T17:04:04.379985] [MissionLead] Action: boot_comms
+[2025-07-09T17:04:06.380716] [MissionLead] All systems nominal.
+[2025-07-09T17:04:10.593654] [OrbitalEngineer] Received from MissionLead: boot_power
+[2025-07-09T17:04:10.593842] [MissionSpecialist] Received from MissionLead: boot_power
+[2025-07-09T17:04:10.593988] [SpacecraftTechnician] Received from MissionLead: boot_power
+[2025-07-09T17:04:10.594175] [SystemMonitor] Power system failure detected
+[2025-07-09T17:04:10.595198] [MissionSpecialist] Analyzing mission data...
+..
+[2025-07-09T17:04:10.595379] [SpacecraftTechnician] Power systems powering on...
+[2025-07-09T17:04:10.595715] [MissionLead] Starting mission: debris_removal
+[2025-07-09T17:04:10.596027] [OrbitalEngineer] Received from MissionLead: boot_comms
+[2025-07-09T17:04:10.596097] [MissionSpecialist] Received from MissionLead: boot_comms
+[2025-07-09T17:04:10.596176] [SpacecraftTechnician] Received from MissionLead: boot_comms
+[2025-07-09T17:04:10.596326] [MissionLead] System failure detected: power
+[2025-07-09T17:04:10.596649] [OrbitalEngineer] Running standard diagnostics...
+[2025-07-09T17:04:10.596990] [MissionSpecialist] Analyzing mission data...
+[2025-07-09T17:04:10.597104] [SpacecraftTechnician] Communications systems initializing...
+[2025-07-09T17:04:10.597151] [MissionLead] Initiating abort sequence
+[2025-07-09T17:04:10.597930] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T17:04:10.598196] [MissionLead] Action: dump_propellant

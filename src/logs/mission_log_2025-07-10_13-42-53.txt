@@ -1,0 +1,27 @@
+[2025-07-10T13:42:53.747233] [SystemMonitor] Power system failure detected
+[2025-07-10T13:42:53.747260] [MissionLead] Action: boot_power
+[2025-07-10T13:42:53.747723] [SystemMonitor] Communications failure detected
+[2025-07-10T13:42:53.747832] [MissionLead] Action: boot_comms
+[2025-07-10T13:42:53.748229] [MissionLead] Boot failure detected: power
+[2025-07-10T13:42:53.748568] [MissionLead] Delegating fix: fix_power to SpacecraftTechnician
+[2025-07-10T13:42:53.748892] [MissionLead] Boot failure detected: comms
+[2025-07-10T13:42:53.749177] [MissionLead] Delegating fix: fix_comms to SpacecraftTechnician
+[2025-07-10T13:42:54.747227] [SpacecraftTechnician] Received from MissionLead: boot_power
+[2025-07-10T13:42:54.747846] [SpacecraftTechnician] Power systems powering on...
+[2025-07-10T13:42:54.748247] [SpacecraftTechnician] Received from MissionLead: boot_comms
+[2025-07-10T13:42:54.748269] [SystemMonitor] Received from MissionLead: boot_power
+[2025-07-10T13:42:54.748619] [SpacecraftTechnician] Communications systems initializing...
+[2025-07-10T13:42:54.748716] [SystemMonitor] Verifying power system startup...
+[2025-07-10T13:42:54.748967] [SpacecraftTechnician] Received from MissionLead: fix_power
+[2025-07-10T13:42:54.749061] [SystemMonitor] Received from MissionLead: boot_comms
+[2025-07-10T13:42:54.749267] [SpacecraftTechnician] Repairing power system...
+[2025-07-10T13:42:54.749439] [SystemMonitor] Verifying communications system startup...
+[2025-07-10T13:42:54.749656] [SpacecraftTechnician] Received from MissionLead: fix_comms
+[2025-07-10T13:42:54.749772] [SystemMonitor] Power system failure detected
+[2025-07-10T13:42:54.749985] [SpacecraftTechnician] Repairing communications system...
+[2025-07-10T13:42:54.750076] [SystemMonitor] Communications failure detected
+[2025-07-10T13:42:54.752826] [MissionLead] Boot failure detected: power
+[2025-07-10T13:42:54.753182] [MissionLead] Delegating fix: fix_power to SpacecraftTechnician
+[2025-07-10T13:42:54.753491] [MissionLead] Boot failure detected: comms
+[2025-07-10T13:42:54.753818] [MissionLead] Delegating fix: fix_comms to SpacecraftTechnician
+[2025-07-10T13:42:54.854470] [MissionLead] Boot sequence incomplete. Please troubleshoot.

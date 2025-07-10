@@ -1,0 +1,30 @@
+[2025-07-10T14:57:09.286849] [MissionLead] Action: boot_power
+[2025-07-10T14:57:10.287149] [SystemMonitor] Received from MissionLead: boot_power
+power
+[2025-07-10T14:57:10.287797] [SpacecraftTechnician] Power systems powering on...
+[2025-07-10T14:57:10.287823] [SystemMonitor] Verifying power system startup...
+[2025-07-10T14:57:10.290102] [MissionLead] Action: boot_comms
+[2025-07-10T14:57:11.288434] [SpacecraftTechnician] Received from MissionLead: boot_comms
+[2025-07-10T14:57:11.288865] [SystemMonitor] Verifying communications system startup...
+[2025-07-10T14:57:11.288894] [SpacecraftTechnician] Communications systems initializing...
+[2025-07-10T14:57:11.292464] [MissionLead] All systems nominal.
+[2025-07-10T14:57:21.852234] [MissionLead] Starting mission: emergency_abort
+[2025-07-10T14:57:21.852584] [MissionLead] Action: dump_propellant
+[2025-07-10T14:57:22.852988] [MissionLead] Action: run_emergency_diagnostics
+[2025-07-10T14:57:23.295960] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-10T14:57:23.296468] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-10T14:57:23.296747] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #1 complete at 2025-07-10T14:57:23.296741
+[2025-07-10T14:57:23.297031] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-10T14:57:23.297321] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-10T14:57:23.853884] [MissionLead] Action: prepare_data_dump
+[2025-07-10T14:57:24.851574] [OrbitalEngineer] Received from MissionLead: run_emergency_diagnostics
+[2025-07-10T14:57:24.851951] [OrbitalEngineer] Emergency diagnostics in progress
+[2025-07-10T14:57:25.851645] [MissionSpecialist] Received from MissionLead: prepare_data_dump
+[2025-07-10T14:57:25.852042] [MissionSpecialist] Analyzing mission data...
+[2025-07-10T14:57:25.852376] [MissionSpecialist] Packaging and encrypting mission data for uplink...
+[2025-07-10T14:57:26.354980] [MissionLead] Received from OrbitalEngineer: Emergency diagnostics complete. System compromised.
+[2025-07-10T14:57:26.355376] [MissionLead] Received from OrbitalEngineer: TASK_COMPLETE: run_emergency_diagnostics
+[2025-07-10T14:57:26.355675] [MissionLead] Received from MissionSpecialist: Data uplink ready.
+[2025-07-10T14:57:26.355930] [MissionLead] Received from MissionSpecialist: TASK_COMPLETE: prepare_data_dump
+[2025-07-10T14:57:26.356183] [MissionLead] Completed 2/3 steps.
+[2025-07-10T14:57:26.356449] [MissionLead] Mission ended with incomplete tasks.

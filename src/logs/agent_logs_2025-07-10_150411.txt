@@ -1,0 +1,8 @@
+[2025-07-10T15:03:47] [SpacecraftTechnician] Received from MissionLead: boot_power
+[2025-07-10T15:03:47] [SystemMonitor] Received from MissionLead: boot_power
+[2025-07-10T15:03:47] [SpacecraftTechnician] Power systems powering on...
+[2025-07-10T15:03:47] [SystemMonitor] Power system failure detected during boot
+[2025-07-10T15:03:48] [SpacecraftTechnician] Received from MissionLead: boot_comms
+[2025-07-10T15:03:48] [SpacecraftTechnician] Communications systems initializing...
+[2025-07-10T15:03:48] [SystemMonitor] Received from MissionLead: boot_comms
+[2025-07-10T15:03:48] [SystemMonitor] Communications failure detected during boot

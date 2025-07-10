@@ -1,0 +1,2 @@
+[2025-07-03T12:04:21.131805] [MissionLead] Starting mission: debris_removal
+[2025-07-03T12:04:21.132256] [MissionLead] Action: boot_all_systems

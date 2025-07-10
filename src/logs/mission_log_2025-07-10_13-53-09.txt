@@ -1,0 +1,25 @@
+[2025-07-10T13:53:09.741842] [SystemMonitor] Communications failure detected
+[2025-07-10T13:53:09.741866] [MissionLead] Action: boot_power
+[2025-07-10T13:53:09.742527] [MissionLead] Action: boot_comms
+[2025-07-10T13:53:09.743014] [MissionLead] Boot failure detected: comms
+[2025-07-10T13:53:09.743402] [MissionLead] Delegating fix: fix_comms to SpacecraftTechnician
+[2025-07-10T13:53:09.743719] [MissionLead] Retrying boot action: boot_comms
+[2025-07-10T13:53:10.742270] [SpacecraftTechnician] Received from MissionLead: boot_power
+[2025-07-10T13:53:10.742769] [SystemMonitor] Received from MissionLead: boot_power
+[2025-07-10T13:53:10.742827] [SpacecraftTechnician] Power systems powering on...
+[2025-07-10T13:53:10.746931] [SystemMonitor] Verifying power system startup...
+[2025-07-10T13:53:10.747007] [SpacecraftTechnician] Received from MissionLead: boot_comms
+[2025-07-10T13:53:10.747404] [SystemMonitor] Received from MissionLead: boot_comms
+[2025-07-10T13:53:10.747508] [SpacecraftTechnician] Communications systems initializing...
+[2025-07-10T13:53:10.747753] [SystemMonitor] Verifying communications system startup...
+[2025-07-10T13:53:10.747955] [SpacecraftTechnician] Received from MissionLead: fix_comms
+[2025-07-10T13:53:10.748160] [SystemMonitor] Received from MissionLead: boot_comms
+[2025-07-10T13:53:10.748408] [SpacecraftTechnician] Repairing communications system...
+[2025-07-10T13:53:10.748624] [SystemMonitor] Verifying communications system startup...
+[2025-07-10T13:53:10.748790] [SpacecraftTechnician] Received from MissionLead: boot_comms
+[2025-07-10T13:53:10.749046] [SystemMonitor] Communications failure detected
+[2025-07-10T13:53:10.749229] [SpacecraftTechnician] Communications systems initializing...
+[2025-07-10T13:53:10.847234] [MissionLead] Boot failure detected: comms
+[2025-07-10T13:53:10.847581] [MissionLead] Delegating fix: fix_comms to SpacecraftTechnician
+[2025-07-10T13:53:10.847847] [MissionLead] Retrying boot action: boot_comms
+[2025-07-10T13:53:10.948667] [MissionLead] Boot sequence incomplete. Please troubleshoot.

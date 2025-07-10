@@ -19,7 +19,7 @@ class SpacecraftTechnician:
                 sender = msg["from"]
                 self.logger.log(self.name, f"Received from {sender}: {content}")
 
-                # Handle boot actions
+                # Boot handlers
                 if content == "boot_power":
                     self.logger.log(self.name, "Power systems powering on...")
                     self.bus.send(self.name, "MissionLead", "TASK_COMPLETE: boot_power")
@@ -28,6 +28,30 @@ class SpacecraftTechnician:
                     self.logger.log(self.name, "Communications systems initializing...")
                     self.bus.send(self.name, "MissionLead", "TASK_COMPLETE: boot_comms")
                     continue
+
+                # Repair handlers
+                if content == "fix_power":
+                    self.logger.log(self.name, "Repairing power system...")
+                    self.bus.send(self.name, "MissionLead", "TASK_COMPLETE: fix_power")
+                    continue
+                if content == "fix_comms":
+                    self.logger.log(self.name, "Repairing communications system...")
+                    self.bus.send(self.name, "MissionLead", "TASK_COMPLETE: fix_comms")
+                    continue
+                
+                # Handle repair messages by resetting the failure flag
+                if content == "fix_power":
+                    self.logger.log(self.name, "Power system repaired, resetting status...")
+                    self.state["power_ok"] = True
+                    self.bus.send(self.name, "MissionLead", "TASK_COMPLETE: fix_power")
+                    continue
+
+                if content == "fix_comms":
+                    self.logger.log(self.name, "Communications system repaired, resetting status...")
+                    self.state["comms_ok"] = True
+                    self.bus.send(self.name, "MissionLead", "TASK_COMPLETE: fix_comms")
+                    continue
+
 
                 # Default maintenance behavior
                 self.logger.log(self.name, "Performing system maintenance...")
@@ -42,7 +66,7 @@ class SpacecraftTechnician:
                 self.bus.send(self.name, "MissionLead", f"TASK_COMPLETE: {content}")
                 self.logger.log(self.name, f"Sent TASK_COMPLETE: {content}")
 
-                # Specific action logging
+                # Specific action logs
                 if content == "adjust_thrusters":
                     self.logger.log(self.name, "Adjusting RCS thruster alignment...")
                 elif content == "calibrate_radiators":

@@ -1,0 +1,16 @@
+[2025-07-10T15:25:18.527563] [MissionLead] Action: boot_power
+[2025-07-10T15:25:19.527671] [SpacecraftTechnician] Received from MissionLead: boot_power
+[2025-07-10T15:25:19.528387] [SystemMonitor] Verifying power system startup...
+[2025-07-10T15:25:19.528426] [SpacecraftTechnician] Power systems powering on...
+[2025-07-10T15:25:19.531182] [MissionLead] Acknowledged boot_power by SystemMonitor
+[2025-07-10T15:25:19.531509] [MissionLead] Acknowledged boot_power by SpacecraftTechnician
+[2025-07-10T15:25:19.631883] [MissionLead] Action: boot_comms
+[2025-07-10T15:25:20.529201] [SystemMonitor] Received from MissionLead: boot_comms
+[2025-07-10T15:25:20.529239] [SpacecraftTechnician] Received from MissionLead: boot_comms
+[2025-07-10T15:25:20.533326] [SystemMonitor] Verifying communications system startup...
+[2025-07-10T15:25:20.533442] [SpacecraftTechnician] Communications systems initializing...
+[2025-07-10T15:25:20.535257] [MissionLead] Acknowledged boot_comms by SystemMonitor
+[2025-07-10T15:25:20.535623] [MissionLead] Acknowledged boot_comms by SpacecraftTechnician
+[2025-07-10T15:25:20.636482] [MissionLead] All systems nominal.
+[2025-07-10T15:25:23.006127] [MissionLead] Starting mission: debris_removal
+[2025-07-10T15:25:23.006653] [MissionLead] Action: scan_environment

@@ -1,0 +1,25 @@
+[2025-07-10T15:14:08.509646] [MissionLead] Action: boot_power
+[2025-07-10T15:14:09.509588] [SpacecraftTechnician] Received from MissionLead: boot_power
+[2025-07-10T15:14:09.510095] [SystemMonitor] Received from MissionLead: boot_power
+[2025-07-10T15:14:09.510197] [SpacecraftTechnician] Power systems powering on...
+[2025-07-10T15:14:09.510442] [SystemMonitor] Power system failure detected during boot
+[2025-07-10T15:14:09.513665] [MissionLead] Action: boot_comms
+[2025-07-10T15:14:10.511073] [SpacecraftTechnician] Received from MissionLead: boot_comms
+[2025-07-10T15:14:10.511111] [SystemMonitor] Received from MissionLead: boot_comms
+[2025-07-10T15:14:10.511627] [SpacecraftTechnician] Communications systems initializing...
+[2025-07-10T15:14:10.511672] [SystemMonitor] Communications failure detected during boot
+[2025-07-10T15:14:10.517748] [MissionLead] All systems nominal.
+[2025-07-10T15:14:12.456996] [MissionLead] Starting mission: debris_removal
+[2025-07-10T15:14:12.457443] [MissionLead] Action: scan_environment
+[2025-07-10T15:14:13.458117] [MissionLead] Action: calculate_maneuver
+[2025-07-10T15:14:14.456211] [MissionSpecialist] Received from MissionLead: scan_environment
+[2025-07-10T15:14:14.456663] [MissionSpecialist] Analyzing mission data...
+[2025-07-10T15:14:14.458693] [MissionLead] Action: execute_burn
+[2025-07-10T15:14:15.456717] [OrbitalEngineer] Received from MissionLead: calculate_maneuver
+[2025-07-10T15:14:15.457151] [OrbitalEngineer] Running standard diagnostics...
+[2025-07-10T15:14:15.457220] [MissionSpecialist] Anomaly detected in scan results
+[2025-07-10T15:14:15.457693] [MissionSpecialist] Sent report: 1 anomalies found across 1 scans
+[2025-07-10T15:14:15.513838] [SpacecraftTechnician] Received from MissionLead: execute_burn
+[2025-07-10T15:14:15.514150] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-10T15:14:15.514514] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #1 complete at 2025-07-10T15:14:15.514509
+[2025-07-10T15:14:15.514872] [SpacecraftTechnician] Sent TASK_COMPLETE: execute_burn

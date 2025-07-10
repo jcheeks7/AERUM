@@ -1,0 +1,39 @@
+[2025-07-10T15:55:05.134897] [MissionLead] Action: boot_power
+[2025-07-10T15:55:06.135256] [SystemMonitor] Received from MissionLead: boot_power
+[2025-07-10T15:55:06.135299] [SpacecraftTechnician] Received from MissionLead: boot_power
+[2025-07-10T15:55:06.136063] [SystemMonitor] Verifying power system startup...
+[2025-07-10T15:55:06.136105] [SpacecraftTechnician] Power systems powering on...
+[2025-07-10T15:55:06.138284] [MissionLead] Acknowledged boot_power by SystemMonitor
+[2025-07-10T15:55:06.138696] [MissionLead] Acknowledged boot_power by SpacecraftTechnician
+[2025-07-10T15:55:06.239494] [MissionLead] Action: boot_comms
+[2025-07-10T15:55:07.136982] [SpacecraftTechnician] Received from MissionLead: boot_comms
+[2025-07-10T15:55:07.137030] [SystemMonitor] Received from MissionLead: boot_comms
+[2025-07-10T15:55:07.137610] [SpacecraftTechnician] Communications systems initializing...
+[2025-07-10T15:55:07.137883] [SystemMonitor] Verifying communications system startup...
+[2025-07-10T15:55:07.141998] [MissionLead] Acknowledged boot_comms by SpacecraftTechnician
+[2025-07-10T15:55:07.142293] [MissionLead] Acknowledged boot_comms by SystemMonitor
+[2025-07-10T15:55:07.242994] [MissionLead] All systems nominal.
+[2025-07-10T15:55:40.337749] [MissionLead] Starting mission: debris_removal
+[2025-07-10T15:55:40.338182] [MissionLead] Action: scan_environment
+[2025-07-10T15:55:41.338699] [MissionLead] Action: calculate_maneuver
+[2025-07-10T15:55:42.337545] [MissionSpecialist] Received from MissionLead: scan_environment
+[2025-07-10T15:55:42.337953] [MissionSpecialist] Analyzing mission data...
+[2025-07-10T15:55:42.339538] [MissionLead] Action: execute_burn
+[2025-07-10T15:55:43.337881] [OrbitalEngineer] Received from MissionLead: calculate_maneuver
+[2025-07-10T15:55:43.338307] [OrbitalEngineer] Running standard diagnostics...
+[2025-07-10T15:55:43.338369] [MissionSpecialist] Anomaly detected in scan results
+[2025-07-10T15:55:43.338732] [MissionSpecialist] Sent report: 1 anomalies found across 1 scans
+[2025-07-10T15:55:44.149511] [SpacecraftTechnician] Received from MissionLead: execute_burn
+[2025-07-10T15:55:44.149904] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-10T15:55:44.150311] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #1 complete at 2025-07-10T15:55:44.150305
+[2025-07-10T15:55:44.150609] [SpacecraftTechnician] Sent TASK_COMPLETE: execute_burn
+[2025-07-10T15:55:44.338932] [OrbitalEngineer] Received from MissionSpecialist: Anomaly detected in scan results
+[2025-07-10T15:55:44.339304] [OrbitalEngineer] Initiating anomaly diagnostic protocol
+[2025-07-10T15:55:44.840223] [MissionLead] Received from OrbitalEngineer: TASK_COMPLETE: calculate_maneuver
+[2025-07-10T15:55:44.840604] [MissionLead] Received from MissionSpecialist: Scan complete. Anomaly forwarded to engineering.
+[2025-07-10T15:55:44.840878] [MissionLead] Received from MissionSpecialist: TASK_COMPLETE: scan_environment
+[2025-07-10T15:55:44.841138] [MissionLead] Received from SpacecraftTechnician: Maintenance task #1 complete at 2025-07-10T15:55:44.150305
+[2025-07-10T15:55:44.841390] [MissionLead] Received from SpacecraftTechnician: TASK_COMPLETE: execute_burn
+[2025-07-10T15:55:44.841688] [MissionLead] Completed 3/3 steps.
+[2025-07-10T15:55:44.841935] [MissionLead] All tasks successfully completed. Mission is complete.
+[2025-07-10T15:55:45.340014] [OrbitalEngineer] Sent to MissionLead: Diagnostics complete. Count: 1. Systems nominal.

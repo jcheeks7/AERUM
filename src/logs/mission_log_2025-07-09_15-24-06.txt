@@ -1,0 +1,24 @@
+[2025-07-09T15:24:08.569798] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T15:24:08.570423] [MissionLead] Action: trigger_abort
+[2025-07-09T15:24:09.571348] [MissionLead] Action: dump_propellant
+[2025-07-09T15:24:10.572253] [MissionLead] Action: run_emergency_diagnostics
+[2025-07-09T15:24:11.569655] [SpacecraftTechnician] Received from MissionLead: Notify: dump_propellant complete
+[2025-07-09T15:24:11.570163] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T15:24:11.570484] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #1 complete at 2025-07-09T15:24:11.570478
+[2025-07-09T15:24:11.573278] [MissionLead] Action: prepare_data_dump
+[2025-07-09T15:24:11.574697] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T15:24:12.569734] [OrbitalEngineer] Received from MissionLead: Notify: run_emergency_diagnostics complete
+[2025-07-09T15:24:12.570272] [OrbitalEngineer] Emergency diagnostics in progress
+[2025-07-09T15:24:13.570308] [MissionSpecialist] Received from MissionLead: Notify: prepare_data_dump complete
+[2025-07-09T15:24:13.570712] [MissionSpecialist] Analyzing mission data...
+[2025-07-09T15:24:13.571158] [MissionSpecialist] Packaging and encrypting mission data for uplink...
+[2025-07-09T15:24:14.075577] [MissionLead] Received from MissionLead: Notify: trigger_abort complete
+[2025-07-09T15:24:14.076029] [MissionLead] Received from SpacecraftTechnician: Maintenance task #1 complete at 2025-07-09T15:24:11.570478
+[2025-07-09T15:24:14.076317] [MissionLead] Received from SpacecraftTechnician: Propellant dump complete.
+[2025-07-09T15:24:14.076610] [MissionLead] Received from SpacecraftTechnician: TASK_COMPLETE: Notify: dump_propellant complete
+[2025-07-09T15:24:14.076866] [MissionLead] Received from OrbitalEngineer: Emergency diagnostics complete. System compromised.
+[2025-07-09T15:24:14.077170] [MissionLead] Received from OrbitalEngineer: TASK_COMPLETE: Notify: run_emergency_diagnostics complete
+[2025-07-09T15:24:14.077431] [MissionLead] Received from MissionSpecialist: Data uplink ready.
+[2025-07-09T15:24:14.077698] [MissionLead] Received from MissionSpecialist: TASK_COMPLETE: Notify: prepare_data_dump complete
+[2025-07-09T15:24:14.078021] [MissionLead] Completed 3/4 steps.
+[2025-07-09T15:24:14.078334] [MissionLead] Mission ended with incomplete tasks.

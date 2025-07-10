@@ -1,0 +1,191 @@
+[2025-07-09T16:42:45.420359] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:45.421136] [MissionLead] Action: boot_all_systems
+[2025-07-09T16:42:46.420368] [OrbitalEngineer] Received from MissionLead: boot_all_systems
+[2025-07-09T16:42:46.420430] [MissionSpecialist] Received from MissionLead: boot_all_systems
+[2025-07-09T16:42:46.420457] [SpacecraftTechnician] Received from MissionLead: boot_all_systems
+[2025-07-09T16:42:46.420951] [OrbitalEngineer] Running standard diagnostics...
+[2025-07-09T16:42:46.421020] [MissionSpecialist] Analyzing mission data...
+[2025-07-09T16:42:46.421104] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:42:46.421722] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #1 complete at 2025-07-09T16:42:46.421718
+[2025-07-09T16:42:46.421842] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:46.422003] [SpacecraftTechnician] Sent TASK_COMPLETE: boot_all_systems
+[2025-07-09T16:42:46.922804] [MissionLead] Starting mission: debris_removal
+[2025-07-09T16:42:46.923174] [MissionLead] System failure detected: power
+[2025-07-09T16:42:46.923467] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:46.924015] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:46.924302] [MissionLead] Action: dump_propellant
+[2025-07-09T16:42:47.422249] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:47.924658] [MissionLead] System failure detected: power
+[2025-07-09T16:42:47.925076] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:47.925546] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:47.925804] [MissionLead] Action: dump_propellant
+[2025-07-09T16:42:48.423207] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:42:48.423168] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:48.423704] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:42:48.424038] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #2 complete at 2025-07-09T16:42:48.424032
+[2025-07-09T16:42:48.424346] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:42:48.424678] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:42:48.926532] [MissionLead] System failure detected: power
+[2025-07-09T16:42:48.927090] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:48.927676] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:48.927975] [MissionLead] Action: dump_propellant
+[2025-07-09T16:42:49.424093] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:49.425335] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:42:49.425643] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:42:49.425929] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #3 complete at 2025-07-09T16:42:49.425925
+[2025-07-09T16:42:49.426180] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:42:49.426517] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:42:49.928822] [MissionLead] System failure detected: power
+[2025-07-09T16:42:49.929204] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:49.929675] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:49.929928] [MissionLead] Action: dump_propellant
+[2025-07-09T16:42:50.425008] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:50.427042] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:42:50.427394] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:42:50.427749] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #4 complete at 2025-07-09T16:42:50.427744
+[2025-07-09T16:42:50.428080] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:42:50.428398] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:42:50.930439] [MissionLead] System failure detected: power
+[2025-07-09T16:42:50.930921] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:50.931387] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:50.931653] [MissionLead] Action: dump_propellant
+[2025-07-09T16:42:51.425912] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:51.428960] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:42:51.429277] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:42:51.429568] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #5 complete at 2025-07-09T16:42:51.429564
+[2025-07-09T16:42:51.429833] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:42:51.430093] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:42:51.932004] [MissionLead] System failure detected: power
+[2025-07-09T16:42:51.932412] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:51.932837] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:51.933122] [MissionLead] Action: dump_propellant
+[2025-07-09T16:42:52.426516] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:52.430562] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:42:52.430836] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:42:52.431131] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #6 complete at 2025-07-09T16:42:52.431127
+[2025-07-09T16:42:52.431414] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:42:52.431683] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:42:52.933608] [MissionLead] System failure detected: power
+[2025-07-09T16:42:52.934032] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:52.934535] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:52.934830] [MissionLead] Action: dump_propellant
+[2025-07-09T16:42:53.427375] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:53.432476] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:42:53.432879] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:42:53.433166] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #7 complete at 2025-07-09T16:42:53.433162
+[2025-07-09T16:42:53.433441] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:42:53.433717] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:42:53.935218] [MissionLead] System failure detected: power
+[2025-07-09T16:42:53.935627] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:53.936060] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:53.936317] [MissionLead] Action: dump_propellant
+[2025-07-09T16:42:54.427947] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:54.434435] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:42:54.434741] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:42:54.435007] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #8 complete at 2025-07-09T16:42:54.435003
+[2025-07-09T16:42:54.435283] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:42:54.435540] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:42:54.936873] [MissionLead] System failure detected: power
+[2025-07-09T16:42:54.937255] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:54.937724] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:54.937981] [MissionLead] Action: dump_propellant
+[2025-07-09T16:42:55.428617] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:55.436156] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:42:55.436465] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:42:55.436775] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #9 complete at 2025-07-09T16:42:55.436771
+[2025-07-09T16:42:55.437039] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:42:55.437374] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:42:55.938697] [MissionLead] System failure detected: power
+[2025-07-09T16:42:55.939144] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:55.939613] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:55.939870] [MissionLead] Action: dump_propellant
+[2025-07-09T16:42:56.429013] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:56.438098] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:42:56.438426] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:42:56.438867] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #10 complete at 2025-07-09T16:42:56.438862
+[2025-07-09T16:42:56.439170] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:42:56.439439] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:42:56.940259] [MissionLead] System failure detected: power
+[2025-07-09T16:42:56.940657] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:56.941116] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:56.941371] [MissionLead] Action: dump_propellant
+[2025-07-09T16:42:57.429829] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:57.439777] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:42:57.440104] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:42:57.440413] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #11 complete at 2025-07-09T16:42:57.440409
+[2025-07-09T16:42:57.440731] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:42:57.441143] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:42:57.942139] [MissionLead] System failure detected: power
+[2025-07-09T16:42:57.942521] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:57.942986] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:57.943253] [MissionLead] Action: dump_propellant
+[2025-07-09T16:42:58.430502] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:58.441623] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:42:58.441975] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:42:58.442321] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #12 complete at 2025-07-09T16:42:58.442317
+[2025-07-09T16:42:58.442655] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:42:58.442994] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:42:58.944054] [MissionLead] System failure detected: power
+[2025-07-09T16:42:58.944489] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:58.944933] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:58.945210] [MissionLead] Action: dump_propellant
+[2025-07-09T16:42:59.431187] [SystemMonitor] Power system failure detected
+[2025-07-09T16:42:59.443336] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:42:59.443680] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:42:59.444123] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #13 complete at 2025-07-09T16:42:59.444118
+[2025-07-09T16:42:59.444487] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:42:59.444787] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:42:59.945949] [MissionLead] System failure detected: power
+[2025-07-09T16:42:59.946334] [MissionLead] Initiating abort sequence
+[2025-07-09T16:42:59.946873] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:42:59.947162] [MissionLead] Action: dump_propellant
+[2025-07-09T16:43:00.432025] [SystemMonitor] Power system failure detected
+[2025-07-09T16:43:00.445239] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:43:00.445634] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:43:00.446027] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #14 complete at 2025-07-09T16:43:00.446022
+[2025-07-09T16:43:00.446452] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:43:00.446756] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:43:00.947966] [MissionLead] System failure detected: power
+[2025-07-09T16:43:00.948359] [MissionLead] Initiating abort sequence
+[2025-07-09T16:43:00.948883] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:43:00.949153] [MissionLead] Action: dump_propellant
+[2025-07-09T16:43:01.432620] [SystemMonitor] Power system failure detected
+[2025-07-09T16:43:01.447294] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:43:01.447661] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:43:01.447986] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #15 complete at 2025-07-09T16:43:01.447982
+[2025-07-09T16:43:01.448318] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:43:01.448611] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:43:01.949857] [MissionLead] System failure detected: power
+[2025-07-09T16:43:01.950225] [MissionLead] Initiating abort sequence
+[2025-07-09T16:43:01.950677] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:43:01.950941] [MissionLead] Action: dump_propellant
+[2025-07-09T16:43:02.433537] [SystemMonitor] Power system failure detected
+[2025-07-09T16:43:02.449240] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:43:02.449552] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:43:02.449900] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #16 complete at 2025-07-09T16:43:02.449896
+[2025-07-09T16:43:02.450205] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:43:02.450475] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:43:02.951325] [MissionLead] System failure detected: power
+[2025-07-09T16:43:02.951696] [MissionLead] Initiating abort sequence
+[2025-07-09T16:43:02.952167] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:43:02.952424] [MissionLead] Action: dump_propellant
+[2025-07-09T16:43:03.433937] [SystemMonitor] Power system failure detected
+[2025-07-09T16:43:03.450896] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:43:03.451272] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:43:03.451632] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #17 complete at 2025-07-09T16:43:03.451628
+[2025-07-09T16:43:03.451928] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:43:03.452236] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:43:03.952972] [MissionLead] System failure detected: power
+[2025-07-09T16:43:03.953355] [MissionLead] Initiating abort sequence
+[2025-07-09T16:43:03.953805] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:43:03.954062] [MissionLead] Action: dump_propellant
+[2025-07-09T16:43:04.434552] [SystemMonitor] Power system failure detected
+[2025-07-09T16:43:04.452749] [SpacecraftTechnician] Received from MissionLead: dump_propellant
+[2025-07-09T16:43:04.453037] [SpacecraftTechnician] Performing system maintenance...
+[2025-07-09T16:43:04.453339] [SpacecraftTechnician] Sent to MissionLead: Maintenance task #18 complete at 2025-07-09T16:43:04.453335
+[2025-07-09T16:43:04.453620] [SpacecraftTechnician] Sent TASK_COMPLETE: dump_propellant
+[2025-07-09T16:43:04.453909] [SpacecraftTechnician] Emergency propellant dump initiated!
+[2025-07-09T16:43:04.954544] [MissionLead] System failure detected: power
+[2025-07-09T16:43:04.954922] [MissionLead] Initiating abort sequence
+[2025-07-09T16:43:04.955379] [MissionLead] Starting mission: emergency_abort
+[2025-07-09T16:43:04.955632] [MissionLead] Action: dump_propellant
