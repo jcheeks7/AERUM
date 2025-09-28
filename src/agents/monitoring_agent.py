@@ -1,77 +1,97 @@
 import time
-from datetime import datetime
-from datetime import datetime
+from typing import Any, Dict, Tuple
 
-class MonitoringAgent:
+from .base_agent import BaseAgent
+
+
+class MonitoringAgent(BaseAgent):
     def __init__(self, logger, bus, interval=1):
-        self.name = "SystemMonitor"
-        self.logger = logger
-        self.bus = bus
+        super().__init__("SystemMonitor", logger, bus)
         self.interval = interval
         self.state = {
-            "power_ok": True,
-            "comms_ok": True
+            "systems": {
+                "power_ok": True,
+                "comms_ok": True,
+            },
+            "boot_pending": {
+                "power": True,
+                "comms": True,
+            },
         }
-        # Track which boot steps are pending acknowledgment
-        self.boot_pending = {"boot_power", "boot_comms"}
 
-    def check_power(self):
-        return self.state["power_ok"]
+    def _extract_action(self, content: Any) -> Tuple[str, Dict[str, Any]]:
+        if isinstance(content, dict):
+            metadata = content.copy()
+            action = metadata.get("action")
+        else:
+            action = str(content)
+            metadata = {"action": action}
+        metadata.setdefault("retries", 1)
+        metadata.setdefault("retry_delay", 0.5)
+        return action, metadata
 
-    def check_comms(self):
-        return self.state["comms_ok"]
+    def _perform_action(self, action: str) -> None:
+        systems = self.state["systems"]
+        if action == "boot_power":
+            if systems["power_ok"]:
+                self.log("Verifying power system startup...")
+                self.state["boot_pending"]["power"] = False
+                self.send("MissionLead", "TASK_COMPLETE: boot_power")
+            else:
+                self.log("Power system failure detected during boot")
+                self.send("MissionLead", "SYSTEM_FAILURE: power")
+                raise RuntimeError("Power system verification failed")
+        elif action == "boot_comms":
+            if systems["comms_ok"]:
+                self.log("Verifying communications system startup...")
+                self.state["boot_pending"]["comms"] = False
+                self.send("MissionLead", "TASK_COMPLETE: boot_comms")
+            else:
+                self.log("Communications failure detected during boot")
+                self.send("MissionLead", "SYSTEM_FAILURE: comms")
+                raise RuntimeError("Communications verification failed")
+        elif action == "fix_power":
+            self.log("Power system repaired, resetting status...")
+            systems["power_ok"] = True
+            self.send("MissionLead", "TASK_COMPLETE: fix_power")
+        elif action == "fix_comms":
+            self.log("Communications system repaired, resetting status...")
+            systems["comms_ok"] = True
+            self.send("MissionLead", "TASK_COMPLETE: fix_comms")
+        else:
+            self.log(f"No monitoring handler defined for {action}")
+            self.send("MissionLead", f"TASK_COMPLETE: {action}")
+
+    def _monitor_systems(self):
+        systems = self.state["systems"]
+        boot_pending = self.state["boot_pending"]
+        if any(boot_pending.values()):
+            return
+        if not systems["power_ok"]:
+            self.log("Power system failure detected")
+            self.send("MissionLead", "SYSTEM_FAILURE: power")
+        if not systems["comms_ok"]:
+            self.log("Communications failure detected")
+            self.send("MissionLead", "SYSTEM_FAILURE: comms")
 
     def run(self):
         while True:
-            # Handle incoming messages
             messages = self.bus.fetch(self.name)
             for msg in messages:
                 content = msg["content"]
                 sender = msg["from"]
-                self.logger.log(self.name, f"Received from {sender}: {content}")
-
-                # Boot power handling
-                if content == "boot_power":
-                    if self.state["power_ok"]:
-                        self.logger.log(self.name, "Verifying power system startup...")
-                        self.bus.send(self.name, "MissionLead", "TASK_COMPLETE: boot_power")
-                        self.boot_pending.discard("boot_power")
-                    else:
-                        self.logger.log(self.name, "Power system failure detected during boot")
-                        self.bus.send(self.name, "MissionLead", "SYSTEM_FAILURE: power")
+                self.log(f"Received from {sender}: {content}")
+                action, metadata = self._extract_action(content)
+                if not action:
                     continue
+                self.execute_with_resilience(
+                    action,
+                    lambda action_name=action: self._perform_action(action_name),
+                    conditions=metadata.get("conditions"),
+                    retries=metadata.get("retries", 1),
+                    timeout=metadata.get("timeout"),
+                    retry_delay=metadata.get("retry_delay", 0.5),
+                )
 
-                # Boot comms handling
-                if content == "boot_comms":
-                    if self.state["comms_ok"]:
-                        self.logger.log(self.name, "Verifying communications system startup...")
-                        self.bus.send(self.name, "MissionLead", "TASK_COMPLETE: boot_comms")
-                        self.boot_pending.discard("boot_comms")
-                    else:
-                        self.logger.log(self.name, "Communications failure detected during boot")
-                        self.bus.send(self.name, "MissionLead", "SYSTEM_FAILURE: comms")
-                    continue
-
-                # Repair handlers
-                if content == "fix_power":
-                    self.logger.log(self.name, "Power system repaired, resetting status...")
-                    self.state["power_ok"] = True
-                    self.bus.send(self.name, "MissionLead", "TASK_COMPLETE: fix_power")
-                    continue
-
-                if content == "fix_comms":
-                    self.logger.log(self.name, "Communications system repaired, resetting status...")
-                    self.state["comms_ok"] = True
-                    self.bus.send(self.name, "MissionLead", "TASK_COMPLETE: fix_comms")
-                    continue
-
-            # After boot sequence completes, regular health monitoring
-            if not self.boot_pending:
-                if not self.check_power():
-                    self.logger.log(self.name, "Power system failure detected")
-                    self.bus.send(self.name, "MissionLead", "SYSTEM_FAILURE: power")
-                if not self.check_comms():
-                    self.logger.log(self.name, "Communications failure detected")
-                    self.bus.send(self.name, "MissionLead", "SYSTEM_FAILURE: comms")
-
+            self._monitor_systems()
             time.sleep(self.interval)
