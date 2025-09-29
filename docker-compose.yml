@@ -66,6 +66,21 @@ services:
     networks:
       - aerum
 
+  dashboard:
+    build: .
+    depends_on:
+      - datastore
+    command: python -m src.services.dashboard.app
+    environment:
+      AERUM_DB_PATH: /app/aerum.db
+    volumes:
+      - .:/app
+    working_dir: /app
+    ports:
+      - "5000:5000"
+    networks:
+      - aerum
+
 networks:
   aerum:
     driver: bridge
