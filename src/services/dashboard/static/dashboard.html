@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>AERUM Mission Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f141b;
+        --panel: #1a2230;
+        --accent: #3ec5ff;
+        --text: #e0f0ff;
+        --muted: #7a8c9f;
+        --success: #27d17d;
+        --warn: #ffb347;
+        --danger: #ff5f6d;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: "SF Mono", "Fira Code", "Roboto Mono", monospace;
+      }
+
+      body {
+        margin: 0;
+        background: radial-gradient(circle at top, rgba(62, 197, 255, 0.08), transparent 55%),
+          var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        padding: 1.5rem 2rem;
+        background: linear-gradient(135deg, rgba(62, 197, 255, 0.2), transparent);
+        border-bottom: 1px solid rgba(62, 197, 255, 0.25);
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        letter-spacing: 0.2rem;
+        text-transform: uppercase;
+      }
+
+      header span {
+        font-size: 0.85rem;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+
+      main {
+        flex: 1;
+        padding: 2rem;
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+
+      section {
+        background: linear-gradient(160deg, rgba(62, 197, 255, 0.08), transparent 70%), var(--panel);
+        border: 1px solid rgba(62, 197, 255, 0.15);
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      section h2 {
+        margin: 0 0 1rem 0;
+        font-size: 1rem;
+        letter-spacing: 0.15rem;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .events-list,
+      .health-list,
+      .missions-list {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+      }
+
+      .event {
+        border-left: 3px solid var(--accent);
+        padding-left: 0.75rem;
+      }
+
+      .event .meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-bottom: 0.25rem;
+      }
+
+      .event .payload {
+        font-size: 0.85rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.1rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        letter-spacing: 0.1rem;
+        text-transform: uppercase;
+        background: rgba(62, 197, 255, 0.15);
+      }
+
+      .level-info {
+        border-left-color: var(--accent);
+      }
+
+      .level-warning {
+        border-left-color: var(--warn);
+      }
+
+      .level-error,
+      .level-critical {
+        border-left-color: var(--danger);
+      }
+
+      .health {
+        display: grid;
+        grid-template-columns: auto auto;
+        gap: 0.25rem 1rem;
+        font-size: 0.85rem;
+      }
+
+      .health .status {
+        font-weight: 600;
+      }
+
+      .status-ok {
+        color: var(--success);
+      }
+
+      .status-degraded {
+        color: var(--warn);
+      }
+
+      .status-down {
+        color: var(--danger);
+      }
+
+      .missions-list .mission {
+        padding: 0.75rem;
+        background: rgba(62, 197, 255, 0.05);
+        border-radius: 8px;
+        border: 1px solid rgba(62, 197, 255, 0.1);
+      }
+
+      footer {
+        padding: 0.75rem 2rem;
+        background: rgba(10, 12, 18, 0.9);
+        font-size: 0.75rem;
+        color: var(--muted);
+        display: flex;
+        justify-content: space-between;
+      }
+
+      footer span {
+        text-transform: uppercase;
+        letter-spacing: 0.1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>AERUM</h1>
+      <span>Mission Control Dashboard</span>
+    </header>
+    <main>
+      <section>
+        <h2>Event Feed</h2>
+        <div class="events-list" id="events"></div>
+      </section>
+      <section>
+        <h2>Agent Health</h2>
+        <div class="health-list" id="health"></div>
+      </section>
+      <section>
+        <h2>Missions</h2>
+        <div class="missions-list" id="missions"></div>
+      </section>
+    </main>
+    <footer>
+      <span id="status">Connecting…</span>
+      <span id="timestamp"></span>
+    </footer>
+    <script>
+      const eventsContainer = document.getElementById("events");
+      const healthContainer = document.getElementById("health");
+      const missionsContainer = document.getElementById("missions");
+      const statusEl = document.getElementById("status");
+      const tsEl = document.getElementById("timestamp");
+
+      function formatTime(unixSeconds) {
+        if (!unixSeconds) return "";
+        const date = new Date(unixSeconds * 1000);
+        return date.toLocaleTimeString();
+      }
+
+      function renderEvent(event) {
+        const div = document.createElement("div");
+        div.className = `event level-${(event.level || "info").toLowerCase()}`;
+        const payload = typeof event.payload === "object" ? JSON.stringify(event.payload, null, 2) : String(event.payload);
+        div.innerHTML = `
+          <div class="meta">
+            <span>${formatTime(event.timestamp)} · <strong>${event.source || "unknown"}</strong></span>
+            <span class="badge">${event.topic || "event"}</span>
+          </div>
+          <div class="payload">${payload}</div>
+        `;
+        return div;
+      }
+
+      function renderHealth(health) {
+        const container = document.createElement("div");
+        container.className = "health";
+        const statusClass = `status-${(health.status || "ok").toLowerCase()}`;
+        const details = typeof health.details === "object" ? JSON.stringify(health.details) : String(health.details || "");
+        container.innerHTML = `
+          <div>${health.agent || "agent"}</div>
+          <div class="status ${statusClass}">${health.status || "OK"}</div>
+          <div style="grid-column: 1 / span 2; font-size: 0.75rem; color: var(--muted);">
+            Updated ${formatTime(health.timestamp)} · ${details}
+          </div>
+        `;
+        return container;
+      }
+
+      function renderMission(mission) {
+        const div = document.createElement("div");
+        div.className = "mission";
+        div.innerHTML = `
+          <div style="font-size: 0.9rem;">Mission <strong>${mission.id}</strong></div>
+          <div style="color: var(--muted); font-size: 0.75rem;">Status: ${mission.status}</div>
+        `;
+        return div;
+      }
+
+      function prependEvent(event) {
+        const element = renderEvent(event);
+        eventsContainer.prepend(element);
+        while (eventsContainer.children.length > 50) {
+          eventsContainer.removeChild(eventsContainer.lastChild);
+        }
+      }
+
+      async function loadInitialData() {
+        try {
+          const [eventsRes, healthRes, missionsRes] = await Promise.all([
+            fetch("/events"),
+            fetch("/health"),
+            fetch("/missions")
+          ]);
+          const events = await eventsRes.json();
+          const health = await healthRes.json();
+          const missions = await missionsRes.json();
+
+          eventsContainer.innerHTML = "";
+          events.reverse().forEach((event) => eventsContainer.appendChild(renderEvent(event)));
+
+          healthContainer.innerHTML = "";
+          health.forEach((row) => healthContainer.appendChild(renderHealth(row)));
+
+          missionsContainer.innerHTML = "";
+          missions.forEach((mission) => missionsContainer.appendChild(renderMission(mission)));
+
+          statusEl.textContent = "Live";
+          tsEl.textContent = `Last refresh ${new Date().toLocaleTimeString()}`;
+        } catch (error) {
+          statusEl.textContent = "Offline";
+          tsEl.textContent = "";
+        }
+      }
+
+      function startStream() {
+        const source = new EventSource("/stream");
+        source.onopen = () => {
+          statusEl.textContent = "Streaming";
+        };
+        source.onerror = () => {
+          statusEl.textContent = "Reconnecting";
+        };
+        source.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            prependEvent(data);
+            tsEl.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+          } catch (err) {
+            console.error("Failed to parse SSE payload", err);
+          }
+        };
+      }
+
+      loadInitialData();
+      startStream();
+      setInterval(loadInitialData, 15000);
+    </script>
+  </body>
+</html>
