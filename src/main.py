@@ -1,94 +1,83 @@
+"""Entry point to launch the service-oriented AERUM stack."""
+
+from __future__ import annotations
+
+import logging
 import os
+import signal
 import time
+from multiprocessing import Process
+from typing import Callable, List
 
-from interface.dashboard import launch_dashboard
-from interface.runtime_controller import RuntimeController
+import zmq
+
+from core.contracts import Command, Reply
+from core.ipc import make_req
+from services.datastore.main import main as datastore_main
+from services.mission_lead.main import main as mission_lead_main
+from services.technician.main import main as technician_main
+
+MISSION_LEAD_CLIENT_ADDRESS = os.getenv("MISSION_LEAD_CLIENT_ADDR", "tcp://127.0.0.1:5001")
 
 
-def run_boot_sequence(logger, bus, timeout=5):
-    """Sequentially boot subsystems with retry handling (legacy helper)."""
+def _start_process(target: Callable[[], None], name: str) -> Process:
+    process = Process(target=target, name=name, daemon=False)
+    process.start()
+    logging.info("Started %s (pid=%s)", name, process.pid)
+    return process
 
-    subsystems = ["power", "comms"]
-    required_agents = ["SpacecraftTechnician", "SystemMonitor"]
 
-    for subsystem in subsystems:
-        action = f"boot_{subsystem}"
-        while bus.fetch("MissionLead"):
-            pass
-        logger.log("MissionLead", f"Action: {action}")
-        for agent in required_agents:
-            bus.send("MissionLead", agent, action)
-        start = time.time()
-        acknowledgements = set()
-        failure_reason = None
-        while time.time() - start < timeout and acknowledgements != set(required_agents):
-            messages = bus.fetch("MissionLead")
-            for message in messages:
-                sender = message.get("from")
-                content = message.get("content", "")
-                if isinstance(content, str) and content == f"TASK_COMPLETE: {action}":
-                    acknowledgements.add(sender)
-                    logger.log("MissionLead", f"Acknowledged {action} by {sender}")
-                elif isinstance(content, str) and content.startswith("FAILURE:"):
-                    payload = content.split("FAILURE:", 1)[1].strip()
-                    failure_action, _, reason = payload.partition("|")
-                    failure_action = failure_action.strip()
-                    reason = reason.strip() or "unknown"
-                    if failure_action == action:
-                        failure_reason = reason
-                        agent_name = sender or "Unknown"
-                        logger.log(
-                            "MissionLead",
-                            f"Failure reported by {agent_name} for {action}: {reason}",
-                        )
-                        if sender in acknowledgements:
-                            acknowledgements.remove(sender)
-                        if sender:
-                            logger.log("MissionLead", f"Retrying {action} with {agent_name}")
-                            bus.send("MissionLead", sender, action)
-                    else:
-                        logger.log(
-                            "MissionLead",
-                            f"Received failure for {failure_action} from {sender} during {action}",
-                        )
-                elif isinstance(content, str) and content.startswith("SYSTEM_FAILURE:"):
-                    failure = content.split(":", 1)[1].strip()
-                    if failure == subsystem:
-                        logger.log("MissionLead", f"Boot failure detected: {failure}")
-                        fix_cmd = f"fix_{failure}"
-                        logger.log("MissionLead", f"Delegating fix: {fix_cmd}")
-                        for agent in required_agents:
-                            bus.send("MissionLead", agent, fix_cmd)
-            time.sleep(0.1)
-
-        if acknowledgements != set(required_agents):
-            missing = set(required_agents) - acknowledgements
-            logger.log(
-                "MissionLead",
-                f"Boot incomplete. Missing acknowledgements from: {', '.join(missing)}",
-            )
-            if failure_reason:
-                logger.log("MissionLead", f"Last failure reason: {failure_reason}")
-            return False
-
-    logger.log("MissionLead", "All systems nominal.")
-    return True
+def _send_demo_command() -> None:
+    ctx = zmq.Context.instance()
+    socket = make_req(ctx, MISSION_LEAD_CLIENT_ADDRESS)
+    try:
+        command = Command(
+            src="demo",
+            dst="mission_lead",
+            action="delegate",
+            payload={"target": "technician", "action": "noop", "payload": {}},
+        )
+        socket.send_string(command.to_json())
+        reply = Reply.from_json(socket.recv_string())
+        logging.info("Demo delegate reply: %s", reply.payload)
+    finally:
+        socket.close(linger=0)
 
 
 def main() -> None:
-    controller = RuntimeController()
-    launch_dashboard(store=controller.store, controller=controller)
+    logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(levelname)s %(message)s")
 
-    port = os.getenv("DASHBOARD_PORT", "5000")
-    print(f"Dashboard running at http://localhost:{port}")
-    print("Open the dashboard to initiate the boot sequence and launch missions.")
+    processes: List[Process] = []
 
+    def shutdown(_signum: int, _frame) -> None:
+        logging.info("Shutting down service stack")
+        for proc in processes:
+            if proc.is_alive():
+                proc.terminate()
+        for proc in processes:
+            proc.join(timeout=2)
+        raise SystemExit(0)
+
+    signal.signal(signal.SIGINT, shutdown)
+    signal.signal(signal.SIGTERM, shutdown)
+
+    processes.append(_start_process(datastore_main, "datastore"))
+    # Give datastore time to bind the SUB socket before publishers connect.
+    time.sleep(0.5)
+    processes.append(_start_process(mission_lead_main, "mission_lead"))
+    processes.append(_start_process(technician_main, "technician"))
+
+    time.sleep(1.0)
     try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("\nShutting down AERUM controllers...")
+        _send_demo_command()
+    except Exception as exc:  # pragma: no cover - demo best effort
+        logging.error("Demo command failed: %s", exc)
+
+    logging.info("Service stack running. Press Ctrl+C to exit.")
+    while True:
+        time.sleep(1)
 
 
 if __name__ == "__main__":
     main()
+
