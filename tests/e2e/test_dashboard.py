@@ -35,22 +35,23 @@ def test_dashboard_rest_endpoints(tmp_path) -> None:
 
     processes: List[Process] = []
 
-    try:
-        datastore_module = importlib.reload(importlib.import_module("src.services.datastore.main"))
-        dashboard_module = importlib.reload(importlib.import_module("src.services.dashboard.app"))
+   try:
+    datastore_module = importlib.reload(importlib.import_module("src.services.datastore.main"))
+    dashboard_module = importlib.reload(importlib.import_module("src.services.dashboard.app"))
 
-        datastore_module.init_db(str(db_path))
+    datastore_module.init_db(str(db_path))
 
-        _start_process(datastore_module.main, processes, name="datastore")
-        time.sleep(0.5)
-        _start_process(
-            dashboard_module.app.run,
-            processes,
-            name="dashboard",
-            kwargs={"host": "127.0.0.1", "port": dashboard_port, "debug": False, "use_reloader": False},
-        )
+    _start_process(datastore_module.main, processes, name="datastore")
+    time.sleep(0.5)
+    _start_process(
+        dashboard_module.app.run,
+        processes,
+        name="dashboard",
+        kwargs={"host": "127.0.0.1", "port": dashboard_port, "debug": False, "use_reloader": False},
+    )
 
-        _wait_for_http(f"http://127.0.0.1:{dashboard_port}/health")
+    _wait_for_http(f"http://127.0.0.1:{dashboard_port}/health")
+
 
         with sqlite3.connect(db_path) as conn:
             conn.execute(
