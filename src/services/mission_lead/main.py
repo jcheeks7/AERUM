@@ -15,6 +15,7 @@ SERVICE_NAME = "mission_lead"
 COMMAND_ADDRESS = os.getenv("MISSION_LEAD_COMMAND_ADDR", "tcp://*:5001")
 EVENT_FEED_ADDRESS = os.getenv("AERUM_EVENT_FEED", "tcp://127.0.0.1:7000")
 TECHNICIAN_ADDR = os.getenv("TECHNICIAN_COMMAND_ADDR", "tcp://127.0.0.1:5002")
+TECHNICIAN_CLIENT_ADDR = os.getenv("TECHNICIAN_CLIENT_ADDR", TECHNICIAN_ADDR)
 
 
 class MissionLeadService(BaseService):
@@ -24,7 +25,7 @@ class MissionLeadService(BaseService):
             command_address=COMMAND_ADDRESS,
             event_feed_address=EVENT_FEED_ADDRESS,
         )
-        self._service_registry = {"technician": TECHNICIAN_ADDR}
+        self._service_registry = {"technician": TECHNICIAN_CLIENT_ADDR}
 
     def handle(self, cmd: Command) -> Reply:
         logging.info("Mission Lead handling %s", cmd.action)
