@@ -13,8 +13,8 @@ import pytest
 
 zmq = pytest.importorskip("zmq")
 
-from core.contracts import Command, Reply
-from core.ipc import make_req
+from src.core.contracts import Command, Reply
+from src.core.ipc import make_req
 
 
 def _get_free_port() -> int:
@@ -24,8 +24,8 @@ def _get_free_port() -> int:
 
 
 def _run_test_technician() -> None:
-    from services.technician.main import TechnicianService
-    from core.hal.adapters.propulsion_mock import PropulsionMock
+    from src.services.technician.main import TechnicianService
+    from src.core.hal.adapters.propulsion_mock import PropulsionMock
 
     class DeterministicPropulsion(PropulsionMock):
         def __init__(self) -> None:
@@ -72,9 +72,9 @@ def test_fault_detection_and_hal(tmp_path) -> None:
     processes: list[Process] = []
 
     try:
-        datastore_module = importlib.reload(importlib.import_module("services.datastore.main"))
-        mission_lead_module = importlib.reload(importlib.import_module("services.mission_lead.main"))
-        fault_module = importlib.reload(importlib.import_module("services.fault_analyst.main"))
+        datastore_module = importlib.reload(importlib.import_module("src.services.datastore.main"))
+        mission_lead_module = importlib.reload(importlib.import_module("src.services.mission_lead.main"))
+        fault_module = importlib.reload(importlib.import_module("src.services.fault_analyst.main"))
 
         def start(target, name: str) -> None:
             proc = Process(target=target, name=name)

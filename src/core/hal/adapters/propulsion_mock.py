@@ -6,7 +6,7 @@ import logging
 import random
 from typing import Any, Dict
 
-from core.hal.base import Propulsion
+from src.core.hal.base import Propulsion
 
 
 class PropulsionMock(Propulsion):

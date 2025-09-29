@@ -13,11 +13,11 @@ from typing import Callable, List, Optional
 
 import zmq
 
-from core.contracts import Command, Reply
-from core.ipc import make_req
-from services.datastore.main import main as datastore_main
-from services.mission_lead.main import main as mission_lead_main
-from services.technician.main import main as technician_main
+from src.core.contracts import Command, Reply
+from src.core.ipc import make_req
+from src.services.datastore.main import main as datastore_main
+from src.services.mission_lead.main import main as mission_lead_main
+from src.services.technician.main import main as technician_main
 
 MISSION_LEAD_CLIENT_ADDRESS = os.getenv("MISSION_LEAD_CLIENT_ADDR", "tcp://127.0.0.1:5001")
 

@@ -1,0 +1,1 @@
+"""AERUM package root."""

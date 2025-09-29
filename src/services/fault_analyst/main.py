@@ -9,9 +9,9 @@ from typing import Any
 
 import zmq
 
-from core.contracts import Command, Event, Health, Reply
-from core.ipc import TOPIC_EVENTS, TOPIC_HEALTH, make_req, make_sub
-from services._common import BaseService
+from src.core.contracts import Command, Event, Health, Reply
+from src.core.ipc import TOPIC_EVENTS, TOPIC_HEALTH, make_req, make_sub
+from src.services._common import BaseService
 
 SERVICE_NAME = "fault_analyst"
 COMMAND_ADDRESS = os.getenv("FAULT_ANALYST_COMMAND_ADDR", "tcp://*:5003")

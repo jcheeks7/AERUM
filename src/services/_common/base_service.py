@@ -11,8 +11,8 @@ from typing import Any, Callable
 
 import zmq
 
-from core.contracts import Command, Event, Health, Reply
-from core.ipc import TOPIC_EVENTS, TOPIC_HEALTH, make_pub, make_rep
+from src.core.contracts import Command, Event, Health, Reply
+from src.core.ipc import TOPIC_EVENTS, TOPIC_HEALTH, make_pub, make_rep
 
 DEFAULT_EVENT_FEED = os.getenv("AERUM_EVENT_FEED", "tcp://127.0.0.1:7000")
 
