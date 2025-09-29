@@ -1,0 +1,71 @@
+version: "3.9"
+
+services:
+  datastore:
+    build: .
+    command: python -m src.services.datastore.main
+    environment:
+      AERUM_DB_PATH: /app/aerum.db
+      AERUM_EVENT_FEED: tcp://0.0.0.0:7000
+    volumes:
+      - .:/app
+    working_dir: /app
+    networks:
+      - aerum
+
+  mission_lead:
+    build: .
+    depends_on:
+      - datastore
+    command: python -m src.services.mission_lead.main
+    environment:
+      AERUM_EVENT_FEED: tcp://datastore:7000
+      MISSION_LEAD_COMMAND_ADDR: tcp://0.0.0.0:5001
+      MISSION_LEAD_CLIENT_ADDR: tcp://mission_lead:5001
+      TECHNICIAN_CLIENT_ADDR: tcp://technician:5002
+    volumes:
+      - .:/app
+    working_dir: /app
+    ports:
+      - "5001:5001"
+    networks:
+      - aerum
+
+  technician:
+    build: .
+    depends_on:
+      - datastore
+    command: python -m src.services.technician.main
+    environment:
+      AERUM_EVENT_FEED: tcp://datastore:7000
+      TECHNICIAN_COMMAND_ADDR: tcp://0.0.0.0:5002
+    volumes:
+      - .:/app
+    working_dir: /app
+    ports:
+      - "5002:5002"
+    networks:
+      - aerum
+
+  fault_analyst:
+    build: .
+    depends_on:
+      - datastore
+      - mission_lead
+      - technician
+    command: python -m src.services.fault_analyst.main
+    environment:
+      AERUM_EVENT_FEED: tcp://datastore:7000
+      FAULT_ANALYST_COMMAND_ADDR: tcp://0.0.0.0:5003
+      MISSION_LEAD_CLIENT_ADDR: tcp://mission_lead:5001
+    volumes:
+      - .:/app
+    working_dir: /app
+    ports:
+      - "5003:5003"
+    networks:
+      - aerum
+
+networks:
+  aerum:
+    driver: bridge
