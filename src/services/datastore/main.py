@@ -11,8 +11,8 @@ from typing import Callable
 
 import zmq
 
-from core.contracts import Event, Health
-from core.ipc import TOPIC_EVENTS, TOPIC_HEALTH, make_sub
+from src.core.contracts import Event, Health
+from src.core.ipc import TOPIC_EVENTS, TOPIC_HEALTH, make_sub
 
 DB_PATH = os.getenv("AERUM_DB_PATH", "aerum.db")
 EVENT_FEED_ADDRESS = os.getenv("AERUM_EVENT_FEED", "tcp://127.0.0.1:7000")

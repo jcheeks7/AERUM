@@ -7,9 +7,9 @@ import os
 
 import zmq
 
-from core.contracts import Command, Reply
-from core.ipc import make_req
-from services._common import BaseService
+from src.core.contracts import Command, Reply
+from src.core.ipc import make_req
+from src.services._common import BaseService
 
 SERVICE_NAME = "mission_lead"
 COMMAND_ADDRESS = os.getenv("MISSION_LEAD_COMMAND_ADDR", "tcp://*:5001")

@@ -5,7 +5,7 @@ from __future__ import annotations
 import random
 from typing import Any, Dict
 
-from core.hal.base import Power
+from src.core.hal.base import Power
 
 
 class PowerMock(Power):

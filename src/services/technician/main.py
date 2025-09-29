@@ -7,10 +7,10 @@ import os
 import time
 from typing import Any, Dict
 
-from core.contracts import Command, Reply
-from core.hal.adapters.propulsion_mock import PropulsionMock
-from core.hal.base import Propulsion
-from services._common import BaseService
+from src.core.contracts import Command, Reply
+from src.core.hal.adapters.propulsion_mock import PropulsionMock
+from src.core.hal.base import Propulsion
+from src.services._common import BaseService
 
 SERVICE_NAME = "technician"
 COMMAND_ADDRESS = os.getenv("TECHNICIAN_COMMAND_ADDR", "tcp://*:5002")

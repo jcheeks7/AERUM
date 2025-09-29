@@ -12,8 +12,8 @@ import pytest
 
 zmq = pytest.importorskip("zmq")
 
-from core.contracts import Command, Reply
-from core.ipc import make_req
+from src.core.contracts import Command, Reply
+from src.core.ipc import make_req
 
 
 def _get_free_port() -> int:
@@ -44,9 +44,9 @@ def test_pipeline(tmp_path) -> None:
     processes: list[Process] = []
 
     try:
-        datastore_module = importlib.reload(importlib.import_module("services.datastore.main"))
-        mission_lead_module = importlib.reload(importlib.import_module("services.mission_lead.main"))
-        technician_module = importlib.reload(importlib.import_module("services.technician.main"))
+        datastore_module = importlib.reload(importlib.import_module("src.services.datastore.main"))
+        mission_lead_module = importlib.reload(importlib.import_module("src.services.mission_lead.main"))
+        technician_module = importlib.reload(importlib.import_module("src.services.technician.main"))
 
         def start(target, name: str) -> None:
             proc = Process(target=target, name=name)

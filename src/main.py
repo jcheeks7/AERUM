@@ -5,17 +5,19 @@ from __future__ import annotations
 import logging
 import os
 import signal
+import subprocess
+import sys
 import time
 from multiprocessing import Process
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 import zmq
 
-from core.contracts import Command, Reply
-from core.ipc import make_req
-from services.datastore.main import main as datastore_main
-from services.mission_lead.main import main as mission_lead_main
-from services.technician.main import main as technician_main
+from src.core.contracts import Command, Reply
+from src.core.ipc import make_req
+from src.services.datastore.main import main as datastore_main
+from src.services.mission_lead.main import main as mission_lead_main
+from src.services.technician.main import main as technician_main
 
 MISSION_LEAD_CLIENT_ADDRESS = os.getenv("MISSION_LEAD_CLIENT_ADDR", "tcp://127.0.0.1:5001")
 
@@ -48,6 +50,7 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(levelname)s %(message)s")
 
     processes: List[Process] = []
+    dashboard_proc: Optional[subprocess.Popen[str]] = None
 
     def shutdown(_signum: int, _frame) -> None:
         logging.info("Shutting down service stack")
@@ -56,6 +59,12 @@ def main() -> None:
                 proc.terminate()
         for proc in processes:
             proc.join(timeout=2)
+        if dashboard_proc and dashboard_proc.poll() is None:
+            dashboard_proc.terminate()
+            try:
+                dashboard_proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                dashboard_proc.kill()
         raise SystemExit(0)
 
     signal.signal(signal.SIGINT, shutdown)
@@ -66,6 +75,17 @@ def main() -> None:
     time.sleep(0.5)
     processes.append(_start_process(mission_lead_main, "mission_lead"))
     processes.append(_start_process(technician_main, "technician"))
+
+    if os.getenv("AERUM_NO_DASHBOARD"):
+        logging.info("Dashboard service launch skipped (AERUM_NO_DASHBOARD set)")
+    else:
+        dashboard_cmd = [sys.executable, "-m", "src.services.dashboard.app"]
+        try:
+            dashboard_proc = subprocess.Popen(dashboard_cmd)
+        except OSError as exc:
+            logging.error("Failed to launch dashboard service: %s", exc)
+        else:
+            logging.info("Dashboard service running at http://localhost:5000")
 
     time.sleep(1.0)
     try:
