@@ -3,6 +3,7 @@ import os
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
+from interface.event_store import event_store
 from utils.planner import check_conditions
 
 
@@ -155,7 +156,11 @@ class MissionLead:
             self._abort_mode = True
         self._abort_requested = False if is_abort_mission else self._abort_requested
 
-        self.log(f"Starting mission: {mission.get('name', mission_filename)}")
+        mission_name = mission.get("name", mission_filename)
+        self.log(f"Starting mission: {mission_name}")
+        if not is_abort_mission:
+            event_store.set_agent_state(self.name, status=f"Executing {mission_name}")
+            event_store.update_mission_status("running", message=f"Executing {mission_name}")
 
         steps = mission.get("steps", [])
         tracked_actions = [
@@ -164,9 +169,12 @@ class MissionLead:
             if step.get("action") and step.get("recipients")
         ]
 
+        mission_failed = False
+
         for step in steps:
             if self._abort_requested and not is_abort_mission:
                 self.log("Abort requested. Halting current mission execution.")
+                mission_failed = True
                 break
 
             action = step.get("action")
@@ -180,6 +188,12 @@ class MissionLead:
             conditions = step.get("conditions")
             if conditions and not check_conditions(self.state, conditions):
                 self.log(f"Skipping {action}: mission conditions unmet -> {conditions}.")
+                if not is_abort_mission:
+                    event_store.update_mission_step(
+                        action,
+                        "skipped",
+                        detail="Conditions unmet",
+                    )
                 continue
 
             metadata = {
@@ -190,6 +204,10 @@ class MissionLead:
                 "retry_delay": step.get("retry_delay", 0.5),
             }
 
+            if not is_abort_mission:
+                detail = f"Dispatched to {', '.join(recipients)}" if recipients else "No recipients"
+                event_store.update_mission_step(action, "running", detail=detail)
+
             success, failure_reason = self._dispatch_step(action, recipients, metadata)
             task_state = self.state.setdefault("tasks", {}).setdefault(
                 action, {"agents": [], "status": None, "last_reason": None}
@@ -197,10 +215,23 @@ class MissionLead:
             if success:
                 task_state["status"] = "COMPLETE"
                 self.log(f"Step {action} completed successfully.")
+                if not is_abort_mission:
+                    event_store.update_mission_step(
+                        action,
+                        "complete",
+                        detail="Step completed successfully",
+                    )
             else:
                 task_state["status"] = "FAILED"
                 task_state["last_reason"] = failure_reason
                 self.log(f"Step {action} marked as FAILURE: {failure_reason}.")
+                if not is_abort_mission:
+                    event_store.update_mission_step(
+                        action,
+                        "failed",
+                        detail=failure_reason or "Unknown failure",
+                    )
+                mission_failed = True
 
             if self._abort_requested and not is_abort_mission:
                 break
@@ -220,9 +251,20 @@ class MissionLead:
         self.log(f"Completed {len(completed)}/{total} tracked steps.")
         if len(completed) >= total and total > 0:
             self.log("All tracked tasks successfully completed. Mission is complete.")
+            if not is_abort_mission:
+                event_store.update_mission_status("complete", message="Mission completed successfully")
         elif total > 0:
             self.log("Mission ended with incomplete or failed tasks.")
+            if not is_abort_mission:
+                event_store.update_mission_status("failed", message="Mission ended with failures")
+                mission_failed = True
+        elif not is_abort_mission:
+            status = "failed" if mission_failed else "complete"
+            message = "Mission ended" if mission_failed else "Mission finished"
+            event_store.update_mission_status(status, message=message)
 
         self._abort_mode = previous_abort_state
         if not is_abort_mission:
             self._abort_requested = False
+            final_status = "Mission failed" if mission_failed else "Mission complete"
+            event_store.set_agent_state(self.name, status=final_status)

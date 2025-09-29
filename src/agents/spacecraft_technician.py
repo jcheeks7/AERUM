@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Any, Dict, Tuple
 
 from .base_agent import BaseAgent
+from interface.event_store import event_store
 
 
 class SpacecraftTechnician(BaseAgent):
@@ -27,16 +28,24 @@ class SpacecraftTechnician(BaseAgent):
     def _perform_action(self, action: str) -> None:
         if action == "boot_power":
             self.log("Power systems powering on...")
+            event_store.set_system_state("power", "booting", detail="Power system engaging")
             self.send("MissionLead", "TASK_COMPLETE: boot_power")
+            event_store.set_system_state("power", "nominal", detail="Power system online")
         elif action == "boot_comms":
             self.log("Communications systems initializing...")
+            event_store.set_system_state("comms", "booting", detail="Initializing comms array")
             self.send("MissionLead", "TASK_COMPLETE: boot_comms")
+            event_store.set_system_state("comms", "nominal", detail="Communications online")
         elif action == "fix_power":
             self.log("Repairing power system...")
+            event_store.set_system_state("power", "maintenance", detail="Repairing power system")
             self.send("MissionLead", "TASK_COMPLETE: fix_power")
+            event_store.set_system_state("power", "nominal", detail="Power system restored")
         elif action == "fix_comms":
             self.log("Repairing communications system...")
+            event_store.set_system_state("comms", "maintenance", detail="Repairing communications")
             self.send("MissionLead", "TASK_COMPLETE: fix_comms")
+            event_store.set_system_state("comms", "nominal", detail="Communications restored")
         elif action.upper().startswith("REPAIR"):
             target = action.split(":", 1)[1].strip() if ":" in action else self.name
             self.log(f"Received repair command for {target}. Restoring health.")
