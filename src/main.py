@@ -46,10 +46,34 @@ def run_boot_sequence(logger, bus, timeout=5):
             for msg in msgs:
                 sender = msg.get("from")
                 content = msg.get("content", "")
-                if content == f"TASK_COMPLETE: {action}":
+                if isinstance(content, str) and content == f"TASK_COMPLETE: {action}":
                     acked.add(sender)
                     logger.log("MissionLead", f"Acknowledged {action} by {sender}")
-                elif content.startswith("SYSTEM_FAILURE:"):
+                elif isinstance(content, str) and content.startswith("FAILURE:"):
+                    payload = content.split("FAILURE:", 1)[1].strip()
+                    failure_action = payload
+                    failure_reason = "unknown"
+                    if "|" in payload:
+                        parts = payload.split("|", 1)
+                        failure_action = parts[0].strip()
+                        failure_reason = parts[1].strip()
+                    if failure_action == action:
+                        agent_name = sender or "Unknown"
+                        logger.log(
+                            "MissionLead",
+                            f"Failure reported by {agent_name} for {action}: {failure_reason}",
+                        )
+                        if sender in acked:
+                            acked.remove(sender)
+                        if sender:
+                            logger.log("MissionLead", f"Retrying {action} with {agent_name}")
+                            bus.send("MissionLead", agent_name, action)
+                    else:
+                        logger.log(
+                            "MissionLead",
+                            f"Received failure for {failure_action} from {sender} during {action}",
+                        )
+                elif isinstance(content, str) and content.startswith("SYSTEM_FAILURE:"):
                     failure = content.split(":", 1)[1].strip()
                     if failure == sys:
                         logger.log("MissionLead", f"Boot failure detected: {failure}")
