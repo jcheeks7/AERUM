@@ -7,7 +7,8 @@ from typing import Optional
 
 from flask import Flask, Response, jsonify, request, stream_with_context
 
-from .event_store import event_store, EventStore
+from .event_store import EventStore, event_store
+from .runtime_controller import RuntimeController
 
 
 def _load_static_page() -> str:
@@ -20,8 +21,31 @@ def _load_static_page() -> str:
     )
 
 
-def create_app(store: Optional[EventStore] = None) -> Flask:
+class _StoreOnlyController:
+    """Fallback controller that only exposes read-only state."""
+
+    def __init__(self, store: EventStore):
+        self._store = store
+
+    def list_missions(self):  # pragma: no cover - simple fallback
+        return []
+
+    def get_state_snapshot(self):
+        return self._store.get_state_snapshot()
+
+    def start_boot(self):  # pragma: no cover - simple fallback
+        return False, "Runtime controller unavailable"
+
+    def start_mission(self, _: str):  # pragma: no cover - simple fallback
+        return False, "Runtime controller unavailable"
+
+
+def create_app(
+    store: Optional[EventStore] = None,
+    controller: Optional[RuntimeController] = None,
+) -> Flask:
     store = store or event_store
+    controller = controller or _StoreOnlyController(store)
     app = Flask(__name__)
 
     page_cache = {"html": _load_static_page()}
@@ -48,6 +72,30 @@ def create_app(store: Optional[EventStore] = None) -> Flask:
     def api_agents() -> Response:
         return jsonify({"agents": store.get_statuses()})
 
+    @app.route("/api/state")
+    def api_state() -> Response:
+        return jsonify(controller.get_state_snapshot())
+
+    @app.route("/api/missions")
+    def api_missions() -> Response:
+        return jsonify({"missions": controller.list_missions()})
+
+    @app.route("/api/boot", methods=["POST"])
+    def api_boot() -> Response:
+        success, message = controller.start_boot()
+        status = 202 if success else 400
+        return jsonify({"success": success, "message": message}), status
+
+    @app.route("/api/missions/select", methods=["POST"])
+    def api_mission_select() -> Response:
+        payload = request.get_json(silent=True) or {}
+        filename = payload.get("filename")
+        if not filename:
+            return jsonify({"success": False, "message": "filename is required"}), 400
+        success, message = controller.start_mission(filename)
+        status = 202 if success else 400
+        return jsonify({"success": success, "message": message}), status
+
     @app.route("/api/stream")
     def api_stream() -> Response:
         def generate():
@@ -68,11 +116,14 @@ def create_app(store: Optional[EventStore] = None) -> Flask:
     return app
 
 
-def launch_dashboard(store: Optional[EventStore] = None) -> threading.Thread:
+def launch_dashboard(
+    store: Optional[EventStore] = None,
+    controller: Optional[RuntimeController] = None,
+) -> threading.Thread:
     """Start the dashboard web server in a background thread."""
 
     store = store or event_store
-    app = create_app(store)
+    app = create_app(store, controller=controller)
     port = int(os.getenv("DASHBOARD_PORT", "5000"))
 
     def run_app():
