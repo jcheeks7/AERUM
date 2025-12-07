@@ -17,7 +17,7 @@ DB_PATH = os.getenv("AERUM_DB_PATH", "aerum.db")
 POLL_INTERVAL = float(os.getenv("AERUM_DASHBOARD_POLL", "1.0"))
 
 BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "static"
+FRONTEND_DIR = BASE_DIR.parent.parent / "interface"
 
 
 def _connect(db_path: str = DB_PATH) -> sqlite3.Connection:
@@ -114,13 +114,17 @@ class EventStreamer:
             conn.close()
 
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder=str(FRONTEND_DIR),
+    static_url_path="/ui",
+)
 streamer = EventStreamer()
 
 
 @app.route("/")
 def dashboard() -> Response:
-    return send_from_directory(str(STATIC_DIR), "dashboard.html")
+    return send_from_directory(str(FRONTEND_DIR), "dashboard.html")
 
 
 @app.route("/events")
