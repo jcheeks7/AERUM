@@ -46,6 +46,10 @@
                             <p class="subtext">Monitor mission progression and critical steps</p>
                         </div>
                         <div class="control-buttons">
+                            <select id="missionSelect" class="input-select"></select>
+                            <button id="startMission" class="btn primary">Start Mission</button>
+                            <button id="pauseMission" class="btn">Pause Mission</button>
+                            <button id="resumeMission" class="btn">Resume Mission</button>
                             <button id="startMission" class="btn primary">Start Mission</button>
                             <button id="pauseMission" class="btn">Pause Mission</button>
                             <button id="abortMission" class="btn danger">Abort Mission</button>
@@ -113,6 +117,15 @@
                     <option value="OrbitalEngineer">OrbitalEngineer</option>
                     <option value="MissionSpecialist">MissionSpecialist</option>
                 </select>
+                <label for="faultType">Fault Type</label>
+                <select id="faultType">
+                    <option value="COMM_DROP">COMM_DROP</option>
+                    <option value="SENSOR_DRIFT">SENSOR_DRIFT</option>
+                    <option value="POWER_SPIKE">POWER_SPIKE</option>
+                    <option value="DEGRADE_HEALTH">DEGRADE_HEALTH</option>
+                </select>
+                <label for="faultMessage">Fault Description</label>
+                <textarea id="faultMessage" rows="3" placeholder="e.g., Attitude sensor drift"></textarea>
                 <label for="faultMessage">Fault Description</label>
                 <input id="faultMessage" type="text" placeholder="e.g., Attitude sensor drift" />
             </div>
