@@ -160,15 +160,6 @@ h1, h2, h3, h4 {
     gap: 10px;
 }
 
-.input-select {
-    background: #0d1522;
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 12px;
-    border-radius: 10px;
-    min-width: 200px;
-}
-
 .btn {
     background: transparent;
     color: var(--text);
@@ -427,15 +418,12 @@ h1, h2, h3, h4 {
 }
 
 .modal-body select,
-.modal-body input,
-.modal-body textarea {
 .modal-body input {
     background: #0b101a;
     border: 1px solid var(--border);
     color: var(--text);
     padding: 10px;
     border-radius: 10px;
-    resize: vertical;
 }
 
 .modal-footer {
