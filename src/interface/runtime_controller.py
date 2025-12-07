@@ -51,10 +51,16 @@ class RuntimeController:
         self._mission_lead: Optional[MissionLead] = None
         self._engineer: Optional[OrbitalEngineer] = None
         self._specialist: Optional[MissionSpecialist] = None
+        self._pause_event = threading.Event()
+        self._abort_event = threading.Event()
+        self._current_mission: Optional[str] = None
 
         self._background_threads: List[threading.Thread] = []
         self._start_background_agent(self._technician.run, "SpacecraftTechnician")
         self._start_background_agent(self._monitor.run, "SystemMonitor")
+
+        # Kick off boot sequence on startup so missions can be launched.
+        self.start_boot()
 
     # ------------------------------------------------------------------
     # Public API
@@ -101,6 +107,8 @@ class RuntimeController:
             if not self._mission_agents_started:
                 self._start_mission_agents()
 
+            self._pause_event.clear()
+            self._abort_event.clear()
             mission_name = mission_path.stem.replace("_", " ")
             try:
                 data = json.loads(mission_path.read_text(encoding="utf-8"))
@@ -109,6 +117,7 @@ class RuntimeController:
                 pass
 
             self.store.begin_mission(file=mission_path.name, name=mission_name)
+            self._current_mission = mission_path.name
 
             self._mission_thread = threading.Thread(
                 target=self._mission_worker,
@@ -117,6 +126,105 @@ class RuntimeController:
             )
             self._mission_thread.start()
         return True, None
+
+    def pause_mission(self) -> Tuple[bool, Optional[str]]:
+        with self._mission_lock:
+            if not self._mission_thread or not self._mission_thread.is_alive():
+                return False, "No mission is currently running"
+            if self._pause_event.is_set():
+                return False, "Mission already paused"
+            self._pause_event.set()
+            self.store.update_mission_status("paused", message="Mission paused")
+            self.store.record_event("MissionControl", "Mission paused via dashboard", category="system")
+        return True, None
+
+    def resume_mission(self) -> Tuple[bool, Optional[str]]:
+        with self._mission_lock:
+            if not self._mission_thread or not self._mission_thread.is_alive():
+                return False, "No mission is currently running"
+            if not self._pause_event.is_set():
+                return False, "Mission is not paused"
+            self._pause_event.clear()
+            self.store.update_mission_status("running", message="Mission resumed")
+            self.store.record_event("MissionControl", "Mission resumed", category="system")
+        return True, None
+
+    def abort_mission(self, reason: str = "Abort requested") -> Tuple[bool, Optional[str]]:
+        with self._mission_lock:
+            if not self._mission_thread or not self._mission_thread.is_alive():
+                return False, "No mission is currently running"
+            self._abort_event.set()
+            self.store.update_mission_status("aborted", message=reason)
+            self.store.record_event("MissionControl", f"Abort issued: {reason}", category="system")
+            if self._mission_lead:
+                self._mission_lead.trigger_emergency_abort(reason)
+        return True, None
+
+    def inject_fault(self, fault_type: str, target_agent: str, details: Optional[dict] = None) -> Tuple[bool, Optional[str]]:
+        agent = self._get_agent(target_agent)
+        if not agent:
+            return False, "Unknown agent"
+
+        details = details or {}
+        message = f"Injected fault {fault_type} into {target_agent}"
+        if hasattr(agent, "degrade_health"):
+            agent.degrade_health()
+        agent.log(f"FAULT INJECTION: {fault_type} | {details}")
+        self.store.record_event("FaultInjector", message, category="fault")
+        return True, None
+
+    def get_mission_status(self) -> dict:
+        missions_state = self.store.get_missions_state()
+        current = missions_state.get("current") or {}
+        steps = current.get("steps", [])
+        total_steps = len(steps)
+        completed = len(
+            [s for s in steps if s.get("status") in {"complete", "failed", "skipped"}]
+        )
+        running_step = next((s for s in steps if s.get("status") == "running"), None)
+        pending_step = next((s for s in steps if s.get("status") == "pending"), None)
+
+        return {
+            "mission_name": current.get("name"),
+            "status": (current.get("status") or "idle").upper(),
+            "current_step": running_step,
+            "next_step": pending_step if pending_step != running_step else None,
+            "progress": (completed / total_steps) if total_steps else 0.0,
+            "timestamp": time.time(),
+        }
+
+    def get_agents_state(self) -> List[dict]:
+        states = []
+        store_statuses = {entry.get("agent"): entry for entry in self.store.get_statuses()}
+        for name in ["MissionLead", "OrbitalEngineer", "MissionSpecialist", "SpacecraftTechnician", "SystemMonitor"]:
+            agent_obj = self._get_agent(name)
+            status_entry = store_statuses.get(name, {"agent": name})
+            health_raw = status_entry.get("health") or getattr(agent_obj, "health", "OK")
+            health_map = {"OK": "GREEN", "DEGRADED": "YELLOW", "FAILED": "RED"}
+            health = health_map.get(str(health_raw).upper(), str(health_raw))
+            states.append(
+                {
+                    "name": name,
+                    "health": health,
+                    "status": status_entry.get("status", "Idle"),
+                    "last_message": status_entry.get("status"),
+                    "state": getattr(agent_obj, "state", {}),
+                }
+            )
+        return states
+
+    def get_recent_logs(self, limit: int = 200) -> List[dict]:
+        return self.store.get_events(limit=limit)
+
+    def _get_agent(self, name: str):
+        lookup = {
+            "MissionLead": self._mission_lead,
+            "OrbitalEngineer": self._engineer,
+            "MissionSpecialist": self._specialist,
+            "SpacecraftTechnician": self._technician,
+            "SystemMonitor": self._monitor,
+        }
+        return lookup.get(name)
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -131,6 +239,8 @@ class RuntimeController:
         self._engineer = OrbitalEngineer(self.logger, self.bus)
         self._specialist = MissionSpecialist(self.logger, self.bus)
         self._mission_lead = MissionLead(self.logger, self.bus)
+        self._mission_lead.pause_event = self._pause_event
+        self._mission_lead.abort_event = self._abort_event
 
         self._start_background_agent(self._engineer.run, "OrbitalEngineer")
         self._start_background_agent(self._specialist.run, "MissionSpecialist")
@@ -140,6 +250,8 @@ class RuntimeController:
     def _mission_worker(self, mission_file: str) -> None:
         assert self._mission_lead is not None
         try:
+            self._mission_lead.pause_event = self._pause_event
+            self._mission_lead.abort_event = self._abort_event
             self._mission_lead.run(mission_file)
             missions_state = self.store.get_missions_state()
             current = missions_state.get("current")
@@ -148,6 +260,10 @@ class RuntimeController:
         except Exception as exc:  # pragma: no cover - runtime safety
             self.logger.log("MissionLead", f"Mission execution crashed: {exc}")
             self.store.update_mission_status("failed", message=str(exc))
+        finally:
+            self._pause_event.clear()
+            self._abort_event.clear()
+            self._current_mission = None
 
     def _boot_worker(self) -> None:
         stages = ["power", "comms"]

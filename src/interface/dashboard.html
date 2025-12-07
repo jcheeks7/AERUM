@@ -1,627 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>AERUM Mission Control</title>
-    <style>
-        :root {
-            color-scheme: dark;
-        }
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            font-family: "Inter", "Segoe UI", Arial, sans-serif;
-            background: radial-gradient(circle at top left, #1e3a8a, #0b1120 40%);
-            color: #e2e8f0;
-            min-height: 100vh;
-        }
-        header {
-            padding: 24px 32px;
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.25);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 1.8rem;
-            letter-spacing: 0.04em;
-        }
-        header p {
-            margin: 4px 0 0;
-            color: #94a3b8;
-        }
-        main.layout {
-            display: grid;
-            grid-template-columns: minmax(320px, 380px) 1fr;
-            gap: 20px;
-            padding: 24px 32px 48px;
-        }
-        .stack {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        section.panel {
-            background: rgba(15, 23, 42, 0.92);
-            border: 1px solid rgba(148, 163, 184, 0.16);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
-        }
-        section.panel h2 {
-            margin: 0 0 12px;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #a5b4fc;
-        }
-        .panel-controls {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        .panel-controls h2 {
-            margin: 0;
-        }
-        button.primary {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            border: none;
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 999px;
-            cursor: pointer;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        button.primary:disabled {
-            cursor: not-allowed;
-            opacity: 0.6;
-            box-shadow: none;
-            transform: none;
-        }
-        button.primary:not(:disabled):hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.45);
-        }
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            font-weight: 600;
-        }
-        .status-idle { background: rgba(148, 163, 184, 0.18); color: #cbd5f5; }
-        .status-running { background: rgba(129, 140, 248, 0.25); color: #c7d2fe; }
-        .status-complete { background: rgba(34, 197, 94, 0.25); color: #bbf7d0; }
-        .status-failed { background: rgba(248, 113, 113, 0.25); color: #fecaca; }
-        .status-pending { background: rgba(59, 130, 246, 0.2); color: #c7d2fe; }
-        ul.boot-stages {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        ul.boot-stages li {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px;
-            border-radius: 12px;
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(148, 163, 184, 0.14);
-        }
-        ul.boot-stages li span.name {
-            font-weight: 600;
-            text-transform: capitalize;
-        }
-        .boot-message {
-            margin-top: 12px;
-            color: #94a3b8;
-            font-size: 0.85rem;
-        }
-        select {
-            width: 100%;
-            background: rgba(15, 23, 42, 0.85);
-            color: #e2e8f0;
-            border: 1px solid rgba(148, 163, 184, 0.35);
-            border-radius: 10px;
-            padding: 10px 12px;
-            font-size: 0.95rem;
-        }
-        .mission-summary {
-            background: rgba(30, 41, 59, 0.8);
-            border-radius: 12px;
-            padding: 14px;
-            border: 1px solid rgba(148, 163, 184, 0.14);
-            margin-top: 12px;
-        }
-        .mission-summary h3 {
-            margin: 0 0 8px;
-            font-size: 1rem;
-        }
-        .mission-steps {
-            margin: 12px 0 0;
-            padding: 0;
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .mission-steps li {
-            padding: 10px;
-            border-radius: 10px;
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid rgba(148, 163, 184, 0.1);
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .mission-history {
-            margin-top: 16px;
-        }
-        .mission-history h4 {
-            margin: 0 0 6px;
-            font-size: 0.9rem;
-            color: #94a3b8;
-        }
-        .mission-history ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .mission-history li {
-            font-size: 0.85rem;
-            color: #cbd5f5;
-        }
-        .systems-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-        }
-        .system-card {
-            border-radius: 12px;
-            padding: 12px;
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid rgba(148, 163, 184, 0.18);
-        }
-        .system-card h3 {
-            margin: 0;
-            font-size: 0.95rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-        .system-card p {
-            margin: 6px 0 0;
-            font-size: 0.85rem;
-            color: #94a3b8;
-        }
-        .status-nominal { color: #86efac; }
-        .status-maintenance { color: #fbbf24; }
-        .status-fault { color: #f87171; }
-        .status-booting { color: #93c5fd; }
-        #agents-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-        }
-        .agent-card {
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid rgba(148, 163, 184, 0.18);
-            border-radius: 12px;
-            padding: 14px;
-        }
-        .agent-card h3 {
-            margin: 0 0 6px;
-            font-size: 1rem;
-        }
-        .agent-card p {
-            margin: 0;
-            font-size: 0.85rem;
-            color: #94a3b8;
-        }
-        .timeline-container {
-            height: calc(100vh - 160px);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .timeline-list {
-            flex: 1;
-            overflow-y: auto;
-            margin: 0;
-            padding: 0;
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding-right: 6px;
-        }
-        .timeline-item {
-            padding: 12px 16px;
-            border-radius: 12px;
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid rgba(148, 163, 184, 0.12);
-        }
-        .timeline-item .meta {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-bottom: 6px;
-        }
-        .timeline-item .message {
-            font-size: 0.95rem;
-        }
-        @media (max-width: 980px) {
-            main.layout {
-                grid-template-columns: 1fr;
-            }
-            .timeline-container {
-                height: auto;
-                max-height: 480px;
-            }
-            .timeline-list {
-                flex-direction: column;
-            }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AERUM Mission Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/ui/styles.css">
 </head>
 <body>
-    <header>
-        <h1>🚀 AERUM Mission Control Dashboard</h1>
-        <p>Orchestrate boot operations, monitor missions, and observe live telemetry.</p>
-    </header>
-    <main class="layout">
-        <div class="stack">
-            <section class="panel" id="boot-panel">
-                <div class="panel-controls">
-                    <h2>Boot Control</h2>
-                    <span id="boot-status" class="status-badge status-idle">Idle</span>
-                </div>
-                <button id="boot-button" class="primary">Start Boot Sequence</button>
-                <ul id="boot-stages" class="boot-stages"></ul>
-                <div class="boot-message" id="boot-message"></div>
-            </section>
+    <div class="app-shell">
+        <nav class="sidebar">
+            <div class="logo">AERUM</div>
+            <ul class="nav-list">
+                <li class="nav-item active">Mission Control</li>
+                <li class="nav-item">Agents</li>
+                <li class="nav-item">Logs</li>
+                <li class="nav-item">System Status</li>
+                <li class="nav-item">Settings</li>
+            </ul>
+        </nav>
 
-            <section class="panel" id="mission-panel">
-                <div class="panel-controls">
-                    <h2>Mission Control</h2>
-                    <button id="mission-button" class="primary" disabled>Launch Mission</button>
+        <main class="content">
+            <header class="top-bar">
+                <div class="status-block">
+                    <div class="label">Mission Time</div>
+                    <div id="missionTime" class="value">00:00:00</div>
                 </div>
-                <select id="mission-select" disabled></select>
-                <div class="mission-summary" id="mission-summary"></div>
-                <div class="mission-history">
-                    <h4>Recent Missions</h4>
-                    <ul id="mission-history"></ul>
+                <div class="status-block">
+                    <div class="label">Mode</div>
+                    <div id="missionMode" class="value">STANDBY</div>
                 </div>
-            </section>
+                <div class="status-block">
+                    <div class="label">Fault Flags</div>
+                    <div id="faultFlags" class="value">None</div>
+                </div>
+            </header>
 
-            <section class="panel" id="systems-panel">
-                <div class="panel-controls">
-                    <h2>Systems</h2>
-                </div>
-                <div class="systems-grid" id="systems-grid"></div>
-            </section>
+            <section class="grid">
+                <section class="panel mission-viewer">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Mission Step Viewer</h2>
+                            <p class="subtext">Monitor mission progression and critical steps</p>
+                        </div>
+                        <div class="control-buttons">
+                            <select id="missionSelect" class="input-select"></select>
+                            <button id="startMission" class="btn primary">Start Mission</button>
+                            <button id="pauseMission" class="btn">Pause Mission</button>
+                            <button id="resumeMission" class="btn">Resume Mission</button>
+                            <button id="abortMission" class="btn danger">Abort Mission</button>
+                            <button id="injectFault" class="btn ghost">Inject Fault</button>
+                        </div>
+                    </div>
+                    <div class="mission-steps">
+                        <div class="step-card current">
+                            <div class="label">Current Step</div>
+                            <div id="currentStep" class="value">Awaiting start</div>
+                        </div>
+                        <div class="step-card">
+                            <div class="label">Next Step</div>
+                            <div id="nextStep" class="value">-</div>
+                        </div>
+                        <div class="step-card">
+                            <div class="label">Description</div>
+                            <div id="stepDescription" class="value">Initialize mission to begin</div>
+                        </div>
+                    </div>
+                </section>
 
-            <section class="panel" id="agents-panel">
-                <div class="panel-controls">
-                    <h2>Agents</h2>
-                </div>
-                <div id="agents-list"></div>
+                <section class="panel agents-panel">
+                    <div class="panel-header">
+                        <h2>Agents</h2>
+                        <p class="subtext">Autonomous team situational awareness</p>
+                    </div>
+                    <div id="agents" class="agent-grid">
+                        <!-- Agent cards injected by script -->
+                    </div>
+                </section>
+
+                <section class="panel logs-panel">
+                    <div class="panel-header logs-header">
+                        <div>
+                            <h2>Message Log</h2>
+                            <p class="subtext">Time-sequenced mission exchanges</p>
+                        </div>
+                        <div class="filter">
+                            <label for="agentFilter">Filter by agent</label>
+                            <select id="agentFilter">
+                                <option value="all">All</option>
+                                <option value="MissionLead">MissionLead</option>
+                                <option value="OrbitalEngineer">OrbitalEngineer</option>
+                                <option value="MissionSpecialist">MissionSpecialist</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="logWindow" class="log-window"></div>
+                </section>
             </section>
+        </main>
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay" aria-hidden="true">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Inject Fault</h3>
+                <button id="closeModal" class="icon-btn" aria-label="Close">✕</button>
+            </div>
+            <div class="modal-body">
+                <label for="faultAgent">Agent</label>
+                <select id="faultAgent">
+                    <option value="MissionLead">MissionLead</option>
+                    <option value="OrbitalEngineer">OrbitalEngineer</option>
+                    <option value="MissionSpecialist">MissionSpecialist</option>
+                </select>
+                <label for="faultType">Fault Type</label>
+                <select id="faultType">
+                    <option value="COMM_DROP">COMM_DROP</option>
+                    <option value="SENSOR_DRIFT">SENSOR_DRIFT</option>
+                    <option value="POWER_SPIKE">POWER_SPIKE</option>
+                    <option value="DEGRADE_HEALTH">DEGRADE_HEALTH</option>
+                </select>
+                <label for="faultMessage">Fault Description</label>
+                <textarea id="faultMessage" rows="3" placeholder="e.g., Attitude sensor drift"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="submitFault" class="btn primary full">Log Fault</button>
+            </div>
         </div>
+    </div>
 
-        <section class="panel timeline" id="timeline-panel">
-            <div class="panel-controls">
-                <h2>Event Timeline</h2>
-            </div>
-            <div class="timeline-container">
-                <ul id="timeline-list" class="timeline-list"></ul>
-            </div>
-        </section>
-    </main>
-
-    <script>
-        const bootButton = document.getElementById('boot-button');
-        const bootStatus = document.getElementById('boot-status');
-        const bootStagesEl = document.getElementById('boot-stages');
-        const bootMessageEl = document.getElementById('boot-message');
-
-        const missionSelect = document.getElementById('mission-select');
-        const missionButton = document.getElementById('mission-button');
-        const missionSummary = document.getElementById('mission-summary');
-        const missionHistoryList = document.getElementById('mission-history');
-
-        const systemsGrid = document.getElementById('systems-grid');
-        const agentsList = document.getElementById('agents-list');
-        const timelineList = document.getElementById('timeline-list');
-
-        const statusClass = (status) => `status-${(status || 'idle').toLowerCase()}`;
-        let isBootComplete = false;
-        let missionActive = false;
-
-        function setBootStatus(status, message) {
-            const cls = statusClass(status);
-            bootStatus.className = `status-badge ${cls}`;
-            bootStatus.textContent = status ? status.toUpperCase() : 'UNKNOWN';
-            isBootComplete = status === 'complete';
-            bootButton.disabled = status === 'running' || status === 'complete';
-            missionSelect.disabled = !isBootComplete || missionActive;
-            missionButton.disabled = !isBootComplete || missionActive || missionSelect.value === '';
-            if (message) {
-                bootMessageEl.textContent = message;
-            } else {
-                bootMessageEl.textContent = '';
-            }
-        }
-
-        function renderBootStages(boot) {
-            bootStagesEl.innerHTML = '';
-            (boot.stages || []).forEach(stage => {
-                const li = document.createElement('li');
-                const name = document.createElement('span');
-                name.textContent = stage.name;
-                name.className = 'name';
-                const badge = document.createElement('span');
-                const stageStatus = stage.status || 'pending';
-                badge.className = `status-badge ${statusClass(stageStatus)}`;
-                badge.textContent = stageStatus.toUpperCase();
-                li.appendChild(name);
-                li.appendChild(badge);
-                if (stage.message) {
-                    const detail = document.createElement('div');
-                    detail.textContent = stage.message;
-                    detail.style.fontSize = '0.75rem';
-                    detail.style.color = '#94a3b8';
-                    detail.style.marginTop = '6px';
-                    detail.style.gridColumn = '1 / -1';
-                    li.appendChild(detail);
-                }
-                bootStagesEl.appendChild(li);
-            });
-        }
-
-        function renderMission(missionsState) {
-            const current = missionsState.current;
-            missionSummary.innerHTML = '';
-            missionActive = Boolean(current && current.status === 'running');
-            missionSelect.disabled = !isBootComplete || missionActive;
-            missionButton.disabled = !isBootComplete || missionActive || missionSelect.value === '';
-            if (current) {
-                const title = document.createElement('h3');
-                title.textContent = current.name || current.file;
-                const statusEl = document.createElement('div');
-                statusEl.className = `status-badge ${statusClass(current.status)}`;
-                statusEl.textContent = (current.status || 'unknown').toUpperCase();
-                const wrapper = document.createElement('div');
-                wrapper.style.display = 'flex';
-                wrapper.style.justifyContent = 'space-between';
-                wrapper.style.alignItems = 'center';
-                wrapper.appendChild(title);
-                wrapper.appendChild(statusEl);
-                missionSummary.appendChild(wrapper);
-                if (current.message) {
-                    const msg = document.createElement('p');
-                    msg.textContent = current.message;
-                    msg.style.color = '#94a3b8';
-                    msg.style.margin = '8px 0 0';
-                    missionSummary.appendChild(msg);
-                }
-                const steps = document.createElement('ul');
-                steps.className = 'mission-steps';
-                (current.steps || []).forEach(step => {
-                    const li = document.createElement('li');
-                    const name = document.createElement('span');
-                    name.textContent = step.name;
-                    const badge = document.createElement('span');
-                    badge.className = `status-badge ${statusClass(step.status)}`;
-                    badge.textContent = (step.status || 'pending').toUpperCase();
-                    li.appendChild(name);
-                    li.appendChild(badge);
-                    if (step.detail) {
-                        const detail = document.createElement('div');
-                        detail.textContent = step.detail;
-                        detail.style.fontSize = '0.75rem';
-                        detail.style.color = '#94a3b8';
-                        detail.style.marginTop = '4px';
-                        detail.style.gridColumn = '1 / -1';
-                        li.appendChild(detail);
-                    }
-                    steps.appendChild(li);
-                });
-                missionSummary.appendChild(steps);
-            } else {
-                const idle = document.createElement('p');
-                idle.textContent = 'No mission active. Select a mission file to prepare for launch.';
-                idle.style.color = '#94a3b8';
-                missionSummary.appendChild(idle);
-            }
-            missionHistoryList.innerHTML = '';
-            (missionsState.history || []).forEach(entry => {
-                const li = document.createElement('li');
-                li.textContent = `${entry.name || entry.file} — ${(entry.status || 'unknown').toUpperCase()} (${new Date(entry.completed_at || entry.started_at).toLocaleString()})`;
-                missionHistoryList.appendChild(li);
-            });
-        }
-
-        function renderSystems(systems) {
-            systemsGrid.innerHTML = '';
-            const entries = Object.values(systems || {});
-            if (!entries.length) {
-                const placeholder = document.createElement('p');
-                placeholder.textContent = 'Awaiting telemetry...';
-                placeholder.style.color = '#94a3b8';
-                systemsGrid.appendChild(placeholder);
-                return;
-            }
-            entries.forEach(system => {
-                const card = document.createElement('div');
-                card.className = 'system-card';
-                const title = document.createElement('h3');
-                title.textContent = system.name.toUpperCase();
-                title.classList.add(statusClass(system.status));
-                const detail = document.createElement('p');
-                detail.textContent = system.detail || 'No detail available';
-                card.appendChild(title);
-                card.appendChild(detail);
-                systemsGrid.appendChild(card);
-            });
-        }
-
-        function renderAgents(agents) {
-            agentsList.innerHTML = '';
-            agents.forEach(agent => {
-                const card = document.createElement('div');
-                card.className = 'agent-card';
-                const header = document.createElement('h3');
-                header.textContent = agent.agent;
-                const status = document.createElement('p');
-                status.textContent = agent.status || 'No status';
-                const timestamp = document.createElement('p');
-                if (agent.timestamp) {
-                    timestamp.textContent = `Updated ${new Date(agent.timestamp).toLocaleTimeString()}`;
-                }
-                agentsList.appendChild(card);
-                card.appendChild(header);
-                card.appendChild(status);
-                card.appendChild(timestamp);
-                if (agent.health) {
-                    const health = document.createElement('p');
-                    health.textContent = `Health: ${agent.health}`;
-                    health.style.color = agent.health.toLowerCase() === 'failed' ? '#f87171' : '#bbf7d0';
-                    card.appendChild(health);
-                }
-            });
-        }
-
-        function renderTimeline(events) {
-            timelineList.innerHTML = '';
-            events.forEach(event => {
-                const item = createTimelineItem(event);
-                timelineList.appendChild(item);
-            });
-        }
-
-        function createTimelineItem(event) {
-            const item = document.createElement('li');
-            item.className = 'timeline-item';
-            const meta = document.createElement('div');
-            meta.className = 'meta';
-            meta.textContent = `${event.agent} • ${new Date(event.timestamp).toLocaleTimeString()} • ${event.category}`;
-            const message = document.createElement('div');
-            message.className = 'message';
-            message.textContent = event.message;
-            item.appendChild(meta);
-            item.appendChild(message);
-            return item;
-        }
-
-        function prependTimeline(event) {
-            const item = createTimelineItem(event);
-            timelineList.insertBefore(item, timelineList.firstChild);
-        }
-
-        function hydrateState(data) {
-            setBootStatus(data.boot?.status || 'idle', data.boot?.message);
-            renderBootStages(data.boot || {});
-            renderMission(data.missions || {});
-            renderSystems(data.systems || {});
-            renderAgents(data.agents || []);
-            renderTimeline(data.events || []);
-        }
-
-        async function loadState() {
-            const res = await fetch('/api/state');
-            const data = await res.json();
-            hydrateState(data);
-        }
-
-        async function loadMissions() {
-            const res = await fetch('/api/missions');
-            const data = await res.json();
-            missionSelect.innerHTML = '';
-            const placeholder = document.createElement('option');
-            placeholder.value = '';
-            placeholder.textContent = 'Select mission file';
-            missionSelect.appendChild(placeholder);
-            (data.missions || []).forEach(mission => {
-                const opt = document.createElement('option');
-                opt.value = mission.file;
-                opt.textContent = mission.name;
-                missionSelect.appendChild(opt);
-            });
-            missionSelect.disabled = !isBootComplete || missionActive;
-            missionButton.disabled = !isBootComplete || missionActive || missionSelect.value === '';
-        }
-
-        bootButton.addEventListener('click', async () => {
-            bootButton.disabled = true;
-            setBootStatus('running');
-            await fetch('/api/boot', { method: 'POST' });
-        });
-
-        missionSelect.addEventListener('change', () => {
-            missionButton.disabled = missionSelect.value === '';
-        });
-
-        missionButton.addEventListener('click', async () => {
-            if (!missionSelect.value) return;
-            missionButton.disabled = true;
-            await fetch('/api/missions/select', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ filename: missionSelect.value }),
-            });
-        });
-
-        function connectStream() {
-            const source = new EventSource('/api/stream');
-            source.onmessage = (event) => {
-                const payload = JSON.parse(event.data);
-                if (payload.type === 'event') {
-                    prependTimeline(payload.event);
-                }
-                if (payload.type === 'status') {
-                    // handled by aggregated updates
-                }
-                if (payload.type === 'agents') {
-                    renderAgents(payload.agents);
-                }
-                if (payload.type === 'boot') {
-                    setBootStatus(payload.boot.status, payload.boot.message);
-                    renderBootStages(payload.boot);
-                }
-                if (payload.type === 'systems') {
-                    renderSystems(payload.systems);
-                }
-                if (payload.type === 'mission') {
-                    renderMission(payload.mission);
-                }
-            };
-            source.onerror = () => {
-                source.close();
-                setTimeout(connectStream, 3000);
-            };
-        }
-
-        loadState();
-        loadMissions();
-        connectStream();
-    </script>
+    <script src="/ui/script.js"></script>
 </body>
 </html>

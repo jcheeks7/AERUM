@@ -116,6 +116,15 @@ class MissionLead:
         failure_reason: Optional[str] = None
 
         while pending and not self._abort_requested:
+            if abort_event and abort_event.is_set():
+                self._abort_requested = True
+                failure_reason = failure_reason or "Abort requested"
+                break
+
+            if pause_event and pause_event.is_set():
+                time.sleep(0.1)
+                continue
+
             if timeout and time.time() - start_time > timeout:
                 failure_reason = f"Timeout after {timeout}s"
                 self.log(f"Step {action} timed out: {failure_reason}.")
@@ -145,6 +154,22 @@ class MissionLead:
         return success, failure_reason
 
     def run(self, mission_filename: str) -> None:
+        pause_event = getattr(self, "pause_event", None)
+        abort_event = getattr(self, "abort_event", None)
+
+        def _wait_if_paused() -> bool:
+            if pause_event is None:
+                return False
+            while pause_event.is_set():
+                if abort_event and abort_event.is_set():
+                    self._abort_requested = True
+                    return True
+                time.sleep(0.1)
+            return False
+
+        if abort_event and abort_event.is_set():
+            self._abort_requested = True
+
         mission = self.load_mission(mission_filename)
         if not mission.get("steps"):
             self.log("Mission contains no steps. Nothing to execute.")
@@ -172,6 +197,9 @@ class MissionLead:
         mission_failed = False
 
         for step in steps:
+            if _wait_if_paused():
+                break
+
             if self._abort_requested and not is_abort_mission:
                 self.log("Abort requested. Halting current mission execution.")
                 mission_failed = True
