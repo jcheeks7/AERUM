@@ -1,7 +1,17 @@
+"""Common agent base class for the AERUM crew.
+
+This class centralizes shared behavior such as logging, messaging, health
+management, and resilience utilities. Specialized agents (mission lead,
+orbital engineer, payload specialist, etc.) inherit from this to represent
+their subsystem responsibilities.
+"""
+
+from __future__ import annotations
+
 import random
 from typing import Any, Callable, Dict, Optional
 
-from utils.planner import check_conditions, retry_action, timeout_wrapper
+from aerum.utils.planner import check_conditions, retry_action, timeout_wrapper
 
 
 class BaseAgent:

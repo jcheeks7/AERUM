@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AERUM Mission Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/ui/styles.css">
+</head>
+<body>
+    <div class="app-shell">
+        <nav class="sidebar">
+            <div class="logo">AERUM</div>
+            <ul class="nav-list">
+                <li class="nav-item active">Mission Control</li>
+                <li class="nav-item">Agents</li>
+                <li class="nav-item">Logs</li>
+                <li class="nav-item">System Status</li>
+                <li class="nav-item">Settings</li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header class="top-bar">
+                <div class="status-block">
+                    <div class="label">Mission Time</div>
+                    <div id="missionTime" class="value">00:00:00</div>
+                </div>
+                <div class="status-block">
+                    <div class="label">Mode</div>
+                    <div id="missionMode" class="value">STANDBY</div>
+                </div>
+                <div class="status-block">
+                    <div class="label">Fault Flags</div>
+                    <div id="faultFlags" class="value">None</div>
+                </div>
+            </header>
+
+            <section class="grid">
+                <section class="panel mission-viewer">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Mission Step Viewer</h2>
+                            <p class="subtext">Monitor mission progression and critical steps</p>
+                        </div>
+                        <div class="control-buttons">
+                            <select id="missionSelect" class="input-select"></select>
+                            <button id="startMission" class="btn primary">Start Mission</button>
+                            <button id="pauseMission" class="btn">Pause Mission</button>
+                            <button id="resumeMission" class="btn">Resume Mission</button>
+                            <button id="abortMission" class="btn danger">Abort Mission</button>
+                            <button id="injectFault" class="btn ghost">Inject Fault</button>
+                        </div>
+                    </div>
+                    <div class="mission-steps">
+                        <div class="step-card current">
+                            <div class="label">Current Step</div>
+                            <div id="currentStep" class="value">Awaiting start</div>
+                        </div>
+                        <div class="step-card">
+                            <div class="label">Next Step</div>
+                            <div id="nextStep" class="value">-</div>
+                        </div>
+                        <div class="step-card">
+                            <div class="label">Description</div>
+                            <div id="stepDescription" class="value">Initialize mission to begin</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel agents-panel">
+                    <div class="panel-header">
+                        <h2>Agents</h2>
+                        <p class="subtext">Autonomous team situational awareness</p>
+                    </div>
+                    <div id="agents" class="agent-grid">
+                        <!-- Agent cards injected by script -->
+                    </div>
+                </section>
+
+                <section class="panel logs-panel">
+                    <div class="panel-header logs-header">
+                        <div>
+                            <h2>Message Log</h2>
+                            <p class="subtext">Time-sequenced mission exchanges</p>
+                        </div>
+                        <div class="filter">
+                            <label for="agentFilter">Filter by agent</label>
+                            <select id="agentFilter">
+                                <option value="all">All</option>
+                                <option value="MissionLead">MissionLead</option>
+                                <option value="OrbitalEngineer">OrbitalEngineer</option>
+                                <option value="MissionSpecialist">MissionSpecialist</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="logWindow" class="log-window"></div>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay" aria-hidden="true">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Inject Fault</h3>
+                <button id="closeModal" class="icon-btn" aria-label="Close">✕</button>
+            </div>
+            <div class="modal-body">
+                <label for="faultAgent">Agent</label>
+                <select id="faultAgent">
+                    <option value="MissionLead">MissionLead</option>
+                    <option value="OrbitalEngineer">OrbitalEngineer</option>
+                    <option value="MissionSpecialist">MissionSpecialist</option>
+                </select>
+                <label for="faultType">Fault Type</label>
+                <select id="faultType">
+                    <option value="COMM_DROP">COMM_DROP</option>
+                    <option value="SENSOR_DRIFT">SENSOR_DRIFT</option>
+                    <option value="POWER_SPIKE">POWER_SPIKE</option>
+                    <option value="DEGRADE_HEALTH">DEGRADE_HEALTH</option>
+                </select>
+                <label for="faultMessage">Fault Description</label>
+                <textarea id="faultMessage" rows="3" placeholder="e.g., Attitude sensor drift"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="submitFault" class="btn primary full">Log Fault</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/ui/script.js"></script>
+</body>
+</html>

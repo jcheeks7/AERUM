@@ -1,14 +1,20 @@
+"""Monitoring agent keeping tabs on subsystem health and boot status."""
+
+from __future__ import annotations
+
 import time
 from typing import Any, Dict, Tuple
 
+from aerum.io.event_store import event_store
+
 from .base_agent import BaseAgent
-from interface.event_store import event_store
 
 
 class MonitoringAgent(BaseAgent):
-    def __init__(self, logger, bus, interval=1):
+    def __init__(self, logger, bus, interval=1, store=None):
         super().__init__("SystemMonitor", logger, bus)
         self.interval = interval
+        self.store = store or event_store
         self.state = {
             "systems": {
                 "power_ok": True,
@@ -39,7 +45,7 @@ class MonitoringAgent(BaseAgent):
                 self.log("Verifying power system startup...")
                 self.state["boot_pending"]["power"] = False
                 self.send("MissionLead", "TASK_COMPLETE: boot_power")
-                event_store.set_system_state("power", "nominal", detail="Power verified by monitoring")
+                self.store.set_system_state("power", "nominal", detail="Power verified by monitoring")
             else:
                 self.log("Power system failure detected during boot")
                 self.send("MissionLead", "SYSTEM_FAILURE: power")
@@ -49,7 +55,7 @@ class MonitoringAgent(BaseAgent):
                 self.log("Verifying communications system startup...")
                 self.state["boot_pending"]["comms"] = False
                 self.send("MissionLead", "TASK_COMPLETE: boot_comms")
-                event_store.set_system_state("comms", "nominal", detail="Comms verified by monitoring")
+                self.store.set_system_state("comms", "nominal", detail="Comms verified by monitoring")
             else:
                 self.log("Communications failure detected during boot")
                 self.send("MissionLead", "SYSTEM_FAILURE: comms")
@@ -58,12 +64,12 @@ class MonitoringAgent(BaseAgent):
             self.log("Power system repaired, resetting status...")
             systems["power_ok"] = True
             self.send("MissionLead", "TASK_COMPLETE: fix_power")
-            event_store.set_system_state("power", "nominal", detail="Power system nominal")
+            self.store.set_system_state("power", "nominal", detail="Power system nominal")
         elif action == "fix_comms":
             self.log("Communications system repaired, resetting status...")
             systems["comms_ok"] = True
             self.send("MissionLead", "TASK_COMPLETE: fix_comms")
-            event_store.set_system_state("comms", "nominal", detail="Communications nominal")
+            self.store.set_system_state("comms", "nominal", detail="Communications nominal")
         else:
             self.log(f"No monitoring handler defined for {action}")
             self.send("MissionLead", f"TASK_COMPLETE: {action}")
@@ -76,18 +82,18 @@ class MonitoringAgent(BaseAgent):
         if not systems["power_ok"]:
             self.log("Power system failure detected")
             self.send("MissionLead", "SYSTEM_FAILURE: power")
-            event_store.set_system_state("power", "fault", detail="Power system failure detected")
+            self.store.set_system_state("power", "fault", detail="Power system failure detected")
         if not systems["comms_ok"]:
             self.log("Communications failure detected")
             self.send("MissionLead", "SYSTEM_FAILURE: comms")
-            event_store.set_system_state("comms", "fault", detail="Comms failure detected")
+            self.store.set_system_state("comms", "fault", detail="Comms failure detected")
         if systems.get("o2_ok"):
-            event_store.set_system_state("o2", "nominal", detail="Life support stable")
+            self.store.set_system_state("o2", "nominal", detail="Life support stable")
         else:
-            event_store.set_system_state("o2", "fault", detail="Life support anomaly")
+            self.store.set_system_state("o2", "fault", detail="Life support anomaly")
 
     def run(self):
-        event_store.set_agent_state(self.name, status="Monitoring systems")
+        self.store.set_agent_state(self.name, status="Monitoring systems")
         while True:
             messages = self.bus.fetch(self.name)
             for msg in messages:

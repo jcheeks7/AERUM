@@ -1,26 +1,74 @@
-# AERUM – Artificially Emulated Remote Unit Missioncrew
+# AERUM – Autonomous Embedded Reasoning Unit for Missions
 
-AERUM is an onboard AI crew system designed to autonomously operate satellites through role-based LLM agents.
+AERUM simulates a small astronaut crew of cooperative agents that coordinate through a shared message bus to execute mission scripts. The project is structured to make it easy to embed on constrained hardware, extend with new agents, and connect to the live web dashboard.
 
-## Core Features
-- Role-specific AI agents (Mission Lead, Orbital Engineer, etc.)
-- Autonomous spacecraft operation (simulated & hardware-capable)
-- Natural language interface for mission control
-- Modular architecture for extension (robotic arms, payloads, etc.)
+## Architecture overview
 
-## Web Dashboard
-
-After the boot sequence completes you will be prompted in the console to select a mission. Once the mission is selected the Flask-powered dashboard starts automatically on `http://localhost:5000` (or the port defined by the `DASHBOARD_PORT` environment variable). The dashboard provides:
-
-- **Timeline of events** with live updates streamed from all agent logs.
-- **Agent status panels** summarising the latest message and update time per agent.
-- **Manual refresh controls** that can be used while testing without SSE support.
-
-### Running the dashboard locally
-
-```bash
-pip install -r requirements.txt
-python -m src.main
+```
+aerum/
+├─ core/
+│  ├─ controller.py     # AERUMController orchestrating boot + missions
+│  ├─ mission_engine.py # Mission loader/step tracker
+│  ├─ message_bus.py    # Lightweight intra-agent queue
+│  └─ config.py         # Paths + runtime settings
+├─ agents/
+│  ├─ base_agent.py
+│  ├─ mission_lead.py
+│  ├─ orbital_engineer.py
+│  ├─ mission_specialist.py
+│  ├─ monitoring_agent.py
+│  └─ spacecraft_technician.py
+├─ io/
+│  ├─ logger.py         # Text log writer
+│  └─ event_store.py    # In-memory state/events for dashboards
+├─ missions/            # JSON mission scripts
+├─ utils/planner.py     # Condition/retry helpers for agent actions
+├─ web/                 # Dashboard frontend assets
+scripts/run_mission.py  # CLI entry point
+backend/server.py       # FastAPI dashboard API
 ```
 
-Follow the console prompt to select a mission. Leave the process running to keep the dashboard live. Press `Ctrl+C` to shut the agents and web server down.
+Key runtime components:
+- **AERUMController**: manages boot sequencing, mission lifecycle, agent registry, and state exposure for APIs.
+- **MessageBus**: simple queue supporting directed and broadcast messages between agents.
+- **MissionEngine**: loads JSON missions and tracks current/next steps.
+- **Logger + EventStore**: persistent log file plus in-memory stream used by the dashboard/WebSocket feed.
+
+## Quickstart
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Run an example mission from the CLI:
+   ```bash
+   python scripts/run_mission.py --mission debris_removal.json
+   ```
+3. Launch the dashboard backend and UI:
+   ```bash
+   uvicorn backend.server:app --reload
+   ```
+   Then open http://localhost:8000/ to view the dashboard (assets served from `/ui`).
+
+## Missions
+
+Mission scripts live in `aerum/missions/` and follow a simple schema:
+```json
+[
+  {"step": 1, "agent": "MissionLead", "message": "Initialize systems"},
+  {"step": 2, "agent": "OrbitalEngineer", "message": "Stabilize attitude"},
+  {"step": 3, "agent": "MissionSpecialist", "message": "Run diagnostics"}
+]
+```
+Add new missions by placing JSON files in this directory; they are automatically discovered by the API and CLI.
+
+## Dashboard API mapping
+
+The FastAPI service in `backend/server.py` exposes:
+- `GET /api/missions` – list available missions.
+- `POST /api/missions/start|pause|resume|abort` – lifecycle controls.
+- `GET /api/status` – mission/step/progress snapshot.
+- `GET /api/agents` – summarized agent health and state.
+- `GET /api/logs` – recent log events; `WS /ws/logs` streams live events.
+
+The web UI (in `aerum/web/`) polls these endpoints to stay synchronized with the running controller.

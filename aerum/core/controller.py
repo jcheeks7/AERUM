@@ -1,4 +1,4 @@
-"""Runtime controller orchestrating boot and mission lifecycle."""
+"""AERUMController orchestrates the agent crew and mission lifecycle."""
 
 from __future__ import annotations
 
@@ -8,14 +8,16 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from agents.mission_lead import MissionLead
-from agents.mission_specialist import MissionSpecialist
-from agents.monitoring_agent import MonitoringAgent
-from agents.orbital_engineer import OrbitalEngineer
-from agents.spacecraft_technician import SpacecraftTechnician
-from interface.event_store import EventStore, event_store
-from utils.logger import Logger
-from utils.message_bus import MessageBus
+from aerum.agents.mission_lead import MissionLead
+from aerum.agents.mission_specialist import MissionSpecialist
+from aerum.agents.monitoring_agent import MonitoringAgent
+from aerum.agents.orbital_engineer import OrbitalEngineer
+from aerum.agents.spacecraft_technician import SpacecraftTechnician
+from aerum.core.config import AERUMConfig
+from aerum.core.message_bus import MessageBus
+from aerum.core.mission_engine import MissionEngine
+from aerum.io.event_store import EventStore, event_store
+from aerum.io.logger import Logger
 
 
 def wrap_logger_for_ui(logger: Logger, store: EventStore = event_store) -> None:
@@ -30,14 +32,16 @@ def wrap_logger_for_ui(logger: Logger, store: EventStore = event_store) -> None:
     logger.log = ui_log  # type: ignore[assignment]
 
 
-class RuntimeController:
+class AERUMController:
     """Coordinates background agents, boot sequencing, and mission execution."""
 
-    def __init__(self, *, store: Optional[EventStore] = None) -> None:
+    def __init__(self, *, store: Optional[EventStore] = None, config: Optional[AERUMConfig] = None) -> None:
+        self.config = config or AERUMConfig()
         self.store = store or event_store
-        self.logger = Logger()
+        self.logger = Logger(self.config)
         wrap_logger_for_ui(self.logger, self.store)
         self.bus = MessageBus()
+        self.mission_engine = MissionEngine(self.config.missions_dir)
 
         self._boot_lock = threading.Lock()
         self._mission_lock = threading.Lock()
@@ -46,31 +50,27 @@ class RuntimeController:
         self._boot_complete = threading.Event()
         self._mission_agents_started = False
 
-        self._technician = SpacecraftTechnician(self.logger, self.bus)
-        self._monitor = MonitoringAgent(self.logger, self.bus)
+        self._technician = SpacecraftTechnician(self.logger, self.bus, store=self.store)
+        self._monitor = MonitoringAgent(self.logger, self.bus, store=self.store)
         self._mission_lead: Optional[MissionLead] = None
         self._engineer: Optional[OrbitalEngineer] = None
         self._specialist: Optional[MissionSpecialist] = None
+        self._pause_event = threading.Event()
+        self._abort_event = threading.Event()
+        self._current_mission: Optional[str] = None
 
         self._background_threads: List[threading.Thread] = []
         self._start_background_agent(self._technician.run, "SpacecraftTechnician")
         self._start_background_agent(self._monitor.run, "SystemMonitor")
 
+        # Kick off boot sequence on startup so missions can be launched.
+        self.start_boot()
+
     # ------------------------------------------------------------------
     # Public API
 
     def list_missions(self) -> List[Dict[str, str]]:
-        missions: List[Dict[str, str]] = []
-        missions_dir = Path("missions")
-        for path in sorted(missions_dir.glob("*.json")):
-            name = path.stem.replace("_", " ")
-            try:
-                data = json.loads(path.read_text(encoding="utf-8"))
-                name = data.get("name") or name
-            except Exception:
-                pass
-            missions.append({"file": path.name, "name": name})
-        return missions
+        return self.mission_engine.available_missions()
 
     def get_state_snapshot(self) -> dict:
         return self.store.get_state_snapshot()
@@ -89,8 +89,7 @@ class RuntimeController:
         return True, None
 
     def start_mission(self, mission_file: str) -> Tuple[bool, Optional[str]]:
-        missions_dir = Path("missions")
-        mission_path = missions_dir / mission_file
+        mission_path = self.config.missions_dir / mission_file
         if not mission_path.exists():
             return False, "Mission file not found"
         if not self._boot_complete.is_set():
@@ -101,14 +100,16 @@ class RuntimeController:
             if not self._mission_agents_started:
                 self._start_mission_agents()
 
-            mission_name = mission_path.stem.replace("_", " ")
+            self._pause_event.clear()
+            self._abort_event.clear()
             try:
-                data = json.loads(mission_path.read_text(encoding="utf-8"))
-                mission_name = data.get("name") or mission_name
-            except Exception:
-                pass
+                self.mission_engine.load(mission_file)
+            except Exception as exc:  # pragma: no cover - runtime safety
+                return False, f"Unable to load mission: {exc}"
 
+            mission_name = self.mission_engine.metadata.get("name", mission_path.stem)
             self.store.begin_mission(file=mission_path.name, name=mission_name)
+            self._current_mission = mission_path.name
 
             self._mission_thread = threading.Thread(
                 target=self._mission_worker,
@@ -118,28 +119,139 @@ class RuntimeController:
             self._mission_thread.start()
         return True, None
 
+    def pause_mission(self) -> Tuple[bool, Optional[str]]:
+        with self._mission_lock:
+            if not self._mission_thread or not self._mission_thread.is_alive():
+                return False, "No mission is currently running"
+            if self._pause_event.is_set():
+                return False, "Mission already paused"
+            self._pause_event.set()
+            self.store.update_mission_status("paused", message="Mission paused")
+            self.store.record_event("MissionControl", "Mission paused via dashboard", category="system")
+        return True, None
+
+    def resume_mission(self) -> Tuple[bool, Optional[str]]:
+        with self._mission_lock:
+            if not self._mission_thread or not self._mission_thread.is_alive():
+                return False, "No mission is currently running"
+            if not self._pause_event.is_set():
+                return False, "Mission is not paused"
+            self._pause_event.clear()
+            self.store.update_mission_status("running", message="Mission resumed")
+            self.store.record_event("MissionControl", "Mission resumed", category="system")
+        return True, None
+
+    def abort_mission(self, reason: str = "Abort requested") -> Tuple[bool, Optional[str]]:
+        with self._mission_lock:
+            if not self._mission_thread or not self._mission_thread.is_alive():
+                return False, "No mission is currently running"
+            self._abort_event.set()
+            self.store.update_mission_status("aborted", message=reason)
+            self.store.record_event("MissionControl", f"Abort issued: {reason}", category="system")
+            if self._mission_lead:
+                self._mission_lead.trigger_emergency_abort(reason)
+        return True, None
+
+    def inject_fault(self, fault_type: str, target_agent: str, details: Optional[dict] = None) -> Tuple[bool, Optional[str]]:
+        agent = self._get_agent(target_agent)
+        if not agent:
+            return False, "Unknown agent"
+
+        details = details or {}
+        message = f"Injected fault {fault_type} into {target_agent}"
+        if hasattr(agent, "degrade_health"):
+            agent.degrade_health()
+        agent.log(f"FAULT INJECTION: {fault_type} | {details}")
+        self.store.record_event("FaultInjector", message, category="fault")
+        return True, None
+
+    def get_mission_status(self) -> dict:
+        missions_state = self.store.get_missions_state()
+        current = missions_state.get("current") or {}
+        steps = current.get("steps", [])
+        total_steps = len(steps)
+        completed = len(
+            [s for s in steps if s.get("status") in {"complete", "failed", "skipped"}]
+        )
+        running_step = next((s for s in steps if s.get("status") == "running"), None)
+        pending_step = next((s for s in steps if s.get("status") == "pending"), None)
+
+        mission_status = {
+            "mission_name": current.get("name") or self.mission_engine.metadata.get("name"),
+            "status": (current.get("status") or "idle").upper(),
+            "current_step": running_step or self.mission_engine.get_current_step(),
+            "next_step": pending_step if pending_step != running_step else self.mission_engine.get_next_step(),
+            "progress": (completed / total_steps) if total_steps else self.mission_engine.progress(),
+            "timestamp": time.time(),
+        }
+        return mission_status
+
+    def get_agents_state(self) -> List[dict]:
+        states = []
+        store_statuses = {entry.get("agent"): entry for entry in self.store.get_statuses()}
+        for name in ["MissionLead", "OrbitalEngineer", "MissionSpecialist", "SpacecraftTechnician", "SystemMonitor"]:
+            agent_obj = self._get_agent(name)
+            status_entry = store_statuses.get(name, {"agent": name})
+            health_raw = status_entry.get("health") or getattr(agent_obj, "health", "OK")
+            health_map = {"OK": "GREEN", "DEGRADED": "YELLOW", "FAILED": "RED"}
+            health = health_map.get(str(health_raw).upper(), str(health_raw))
+            states.append(
+                {
+                    "name": name,
+                    "health": health,
+                    "status": status_entry.get("status", "Idle"),
+                    "last_message": status_entry.get("status"),
+                    "state": getattr(agent_obj, "state", {}),
+                }
+            )
+        return states
+
+    def get_recent_logs(self, limit: int = 200) -> List[dict]:
+        return self.store.get_events(limit=limit)
+
     # ------------------------------------------------------------------
     # Internal helpers
+
+    def _get_agent(self, name: str):
+        lookup = {
+            "MissionLead": self._mission_lead,
+            "OrbitalEngineer": self._engineer,
+            "MissionSpecialist": self._specialist,
+            "SpacecraftTechnician": self._technician,
+            "SystemMonitor": self._monitor,
+        }
+        return lookup.get(name)
 
     def _start_background_agent(self, target, agent_name: str) -> None:
         thread = threading.Thread(target=target, daemon=True)
         thread.start()
         self._background_threads.append(thread)
         self.store.set_agent_state(agent_name, status="Online")
+        self.bus.register_agent(agent_name)
 
     def _start_mission_agents(self) -> None:
         self._engineer = OrbitalEngineer(self.logger, self.bus)
         self._specialist = MissionSpecialist(self.logger, self.bus)
-        self._mission_lead = MissionLead(self.logger, self.bus)
+        self._mission_lead = MissionLead(
+            self.logger,
+            self.bus,
+            missions_dir=self.config.missions_dir,
+            store=self.store,
+        )
+        self._mission_lead.pause_event = self._pause_event
+        self._mission_lead.abort_event = self._abort_event
 
         self._start_background_agent(self._engineer.run, "OrbitalEngineer")
         self._start_background_agent(self._specialist.run, "MissionSpecialist")
         self.store.set_agent_state("MissionLead", status="Ready for missions")
+        self.bus.register_agent("MissionLead")
         self._mission_agents_started = True
 
     def _mission_worker(self, mission_file: str) -> None:
         assert self._mission_lead is not None
         try:
+            self._mission_lead.pause_event = self._pause_event
+            self._mission_lead.abort_event = self._abort_event
             self._mission_lead.run(mission_file)
             missions_state = self.store.get_missions_state()
             current = missions_state.get("current")
@@ -148,6 +260,10 @@ class RuntimeController:
         except Exception as exc:  # pragma: no cover - runtime safety
             self.logger.log("MissionLead", f"Mission execution crashed: {exc}")
             self.store.update_mission_status("failed", message=str(exc))
+        finally:
+            self._pause_event.clear()
+            self._abort_event.clear()
+            self._current_mission = None
 
     def _boot_worker(self) -> None:
         stages = ["power", "comms"]
@@ -249,3 +365,7 @@ class RuntimeController:
         else:
             self.store.finalize_boot("failed", message="Boot sequence failed")
             self.store.set_agent_state("MissionLead", status="Boot failed")
+
+
+# Backwards compatibility alias
+RuntimeController = AERUMController

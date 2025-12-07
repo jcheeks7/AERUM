@@ -46,7 +46,8 @@ def create_app(
 ) -> Flask:
     store = store or event_store
     controller = controller or _StoreOnlyController(store)
-    app = Flask(__name__)
+    base_dir = Path(__file__).parent
+    app = Flask(__name__, static_folder=str(base_dir), static_url_path="/ui")
 
     page_cache = {"html": _load_static_page()}
 

@@ -1,17 +1,29 @@
 import json
-import os
 import time
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from interface.event_store import event_store
-from utils.planner import check_conditions
+from aerum.io.event_store import EventStore, event_store
+from aerum.utils.planner import check_conditions
 
 
 class MissionLead:
-    def __init__(self, logger, bus):
+    def __init__(
+        self,
+        logger,
+        bus,
+        *,
+        missions_dir: Optional[Path] = None,
+        store: Optional[EventStore] = None,
+    ):
         self.name = "MissionLead"
         self.logger = logger
         self.bus = bus
+        from aerum.core.config import AERUMConfig
+
+        cfg = AERUMConfig()
+        self.missions_dir = missions_dir or cfg.missions_dir
+        self.store = store or event_store
         self.state: Dict[str, Any] = {
             "tasks": {},
             "agents": {},
@@ -24,9 +36,9 @@ class MissionLead:
         self.logger.log(self.name, message)
 
     def load_mission(self, filename: str) -> Dict[str, Any]:
-        path = os.path.join("missions", filename)
+        path = self.missions_dir / filename
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with path.open("r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception as e:  # pragma: no cover - runtime safety
             self.log(f"ERROR loading mission file: {e}")
@@ -116,6 +128,15 @@ class MissionLead:
         failure_reason: Optional[str] = None
 
         while pending and not self._abort_requested:
+            if abort_event and abort_event.is_set():
+                self._abort_requested = True
+                failure_reason = failure_reason or "Abort requested"
+                break
+
+            if pause_event and pause_event.is_set():
+                time.sleep(0.1)
+                continue
+
             if timeout and time.time() - start_time > timeout:
                 failure_reason = f"Timeout after {timeout}s"
                 self.log(f"Step {action} timed out: {failure_reason}.")
@@ -145,6 +166,22 @@ class MissionLead:
         return success, failure_reason
 
     def run(self, mission_filename: str) -> None:
+        pause_event = getattr(self, "pause_event", None)
+        abort_event = getattr(self, "abort_event", None)
+
+        def _wait_if_paused() -> bool:
+            if pause_event is None:
+                return False
+            while pause_event.is_set():
+                if abort_event and abort_event.is_set():
+                    self._abort_requested = True
+                    return True
+                time.sleep(0.1)
+            return False
+
+        if abort_event and abort_event.is_set():
+            self._abort_requested = True
+
         mission = self.load_mission(mission_filename)
         if not mission.get("steps"):
             self.log("Mission contains no steps. Nothing to execute.")
@@ -159,8 +196,8 @@ class MissionLead:
         mission_name = mission.get("name", mission_filename)
         self.log(f"Starting mission: {mission_name}")
         if not is_abort_mission:
-            event_store.set_agent_state(self.name, status=f"Executing {mission_name}")
-            event_store.update_mission_status("running", message=f"Executing {mission_name}")
+            self.store.set_agent_state(self.name, status=f"Executing {mission_name}")
+            self.store.update_mission_status("running", message=f"Executing {mission_name}")
 
         steps = mission.get("steps", [])
         tracked_actions = [
@@ -172,6 +209,9 @@ class MissionLead:
         mission_failed = False
 
         for step in steps:
+            if _wait_if_paused():
+                break
+
             if self._abort_requested and not is_abort_mission:
                 self.log("Abort requested. Halting current mission execution.")
                 mission_failed = True
@@ -189,7 +229,7 @@ class MissionLead:
             if conditions and not check_conditions(self.state, conditions):
                 self.log(f"Skipping {action}: mission conditions unmet -> {conditions}.")
                 if not is_abort_mission:
-                    event_store.update_mission_step(
+                    self.store.update_mission_step(
                         action,
                         "skipped",
                         detail="Conditions unmet",
@@ -206,7 +246,7 @@ class MissionLead:
 
             if not is_abort_mission:
                 detail = f"Dispatched to {', '.join(recipients)}" if recipients else "No recipients"
-                event_store.update_mission_step(action, "running", detail=detail)
+                self.store.update_mission_step(action, "running", detail=detail)
 
             success, failure_reason = self._dispatch_step(action, recipients, metadata)
             task_state = self.state.setdefault("tasks", {}).setdefault(
@@ -216,7 +256,7 @@ class MissionLead:
                 task_state["status"] = "COMPLETE"
                 self.log(f"Step {action} completed successfully.")
                 if not is_abort_mission:
-                    event_store.update_mission_step(
+                    self.store.update_mission_step(
                         action,
                         "complete",
                         detail="Step completed successfully",
@@ -226,7 +266,7 @@ class MissionLead:
                 task_state["last_reason"] = failure_reason
                 self.log(f"Step {action} marked as FAILURE: {failure_reason}.")
                 if not is_abort_mission:
-                    event_store.update_mission_step(
+                    self.store.update_mission_step(
                         action,
                         "failed",
                         detail=failure_reason or "Unknown failure",
@@ -252,19 +292,19 @@ class MissionLead:
         if len(completed) >= total and total > 0:
             self.log("All tracked tasks successfully completed. Mission is complete.")
             if not is_abort_mission:
-                event_store.update_mission_status("complete", message="Mission completed successfully")
+                self.store.update_mission_status("complete", message="Mission completed successfully")
         elif total > 0:
             self.log("Mission ended with incomplete or failed tasks.")
             if not is_abort_mission:
-                event_store.update_mission_status("failed", message="Mission ended with failures")
+                self.store.update_mission_status("failed", message="Mission ended with failures")
                 mission_failed = True
         elif not is_abort_mission:
             status = "failed" if mission_failed else "complete"
             message = "Mission ended" if mission_failed else "Mission finished"
-            event_store.update_mission_status(status, message=message)
+            self.store.update_mission_status(status, message=message)
 
         self._abort_mode = previous_abort_state
         if not is_abort_mission:
             self._abort_requested = False
             final_status = "Mission failed" if mission_failed else "Mission complete"
-            event_store.set_agent_state(self.name, status=final_status)
+            self.store.set_agent_state(self.name, status=final_status)
